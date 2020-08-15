@@ -1,0 +1,29 @@
+  127 // Define portable fixed-size types
+  129 namespace sf
+  130 {
+  131     // All "common" platforms use the same size for char, short and int
+  132     // (basically there are 3 types for 3 sizes, so no other match is possible),
+  133     // we can use them without doing any kind of check
+  134 
+  135     // 8 bits integer types
+  136     typedef signed   char Int8;
+  137     typedef unsigned char Uint8;
+  138 
+  139     // 16 bits integer types
+  140     typedef signed   short Int16;
+  141     typedef unsigned short Uint16;
+  142 
+  143     // 32 bits integer types
+  144     typedef signed   int Int32;
+  145     typedef unsigned int Uint32;
+  146 
+  147     // 64 bits integer types
+  148     #if defined(_MSC_VER)
+  149         typedef signed   __int64 Int64;
+  150         typedef unsigned __int64 Uint64;
+  151     #else
+  152         typedef signed   long long Int64;
+  153         typedef unsigned long long Uint64;
+  154     #endif
+  155 
+  156 } // namespace sf
