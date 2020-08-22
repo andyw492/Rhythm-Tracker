@@ -10,28 +10,35 @@ using namespace std;
 
 int main()
 {
-	string fileName = "Recording (91).wav";
+	//make these an input from window later
+	int bpm = 150; 
+	string shortestNote = "eighth";
 
-	AudioAnalyzer analyzer;
+	string fileName = "Recording (99).wav";
+
+	AudioAnalyzer analyzer(fileName);
 
 	//int sampleCount = analyzer.getTrimmedSampleCount(fileName);
 	int sampleCount = analyzer.getTrimmedSampleCount(fileName);
-	short* samples = new short[sampleCount];
+	//short* samples;// = new short[sampleCount];
 	cout << "sampleCount is " << sampleCount << endl;
 
-	sf::SoundBuffer buffer(analyzer.getBufferAndSamples(fileName, samples)); //samples is passed by reference
+	sf::SoundBuffer buffer(analyzer.getBufferAndSamples(fileName)); //samples is passed by reference
+
+	
+	analyzer.loadRhythmAccuracy(bpm, shortestNote);
 
 	// initialize our custom stream
 	AudioStream stream;
 	stream.load(buffer);
 
 
-	cout << "test123456781234567" << endl;
+	cout << "te6gkbbfgldbkjffgghhgfjk,gjmigrrjbfhfd2" << endl;
 	WindowMaker windowMaker;
 
 	int displaySamplesAmount = sampleCount / 25000;
 	short* displaySamples = new short[displaySamplesAmount]; //samples will be displayed in intervals of approx. 100000
-	windowMaker.getDisplaySamples(samples, sampleCount, displaySamples); //samples is passed by value, displaySamples is passed by reference
+	windowMaker.getDisplaySamples(analyzer.getSamples(), sampleCount, displaySamples); //samples is passed by value, displaySamples is passed by reference
 
 
 
@@ -39,9 +46,6 @@ int main()
 
 	windowMaker.display(displaySamples, displaySamplesAmount, stream);
 
-
-
-	delete[] samples;
 
 	return 0;
 }

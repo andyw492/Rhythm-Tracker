@@ -1,5 +1,6 @@
 #include <SFML/Audio.hpp>
 #include <iostream>
+#include "RhythmAccuracy.cpp"
 
 using namespace std;
 
@@ -12,13 +13,28 @@ public:
 	AudioAnalyzer(string fileName)
 	{
 		this->fileName = fileName;
+		setSampleInfo(fileName); //sample count, sample rate, and channel count
+		samples = new short[sampleCount];
+		loadSamples();
 	}
 
-	int getSampleCount(string fileName) //delete once getTrimmedSampleCount is fixed
+	~AudioAnalyzer()
 	{
-		sf::SoundBuffer buffer;
+		delete[] samples;
+	}
+
+	void setSampleInfo(string fileName) //delete once getTrimmedSampleCount is fixed
+	{
+		// load an audio buffer from a sound file
 		buffer.loadFromFile(fileName);
-		return buffer.getSampleCount();
+		sampleCount = buffer.getSampleCount();
+		sampleRate = buffer.getSampleRate();
+		channelCount = buffer.getChannelCount();
+	}
+
+	short* getSamples()
+	{
+		return samples;
 	}
 
 	int getTrimmedSampleCount(string fileName)
@@ -49,11 +65,11 @@ public:
 		cout << "buffer.getSampleCount is " << buffer.getSampleCount() << endl;
 		//find the amount of trailing empty samples
 		//if count is of type sf::Uint64 instead of int, then things get screwy in this for loop
-		for (int count = buffer.getSampleCount() - 1; count >= 0; count--)
+		for (int count = sampleCount - 1; count >= 0; count--)
 		{	
 			if (bufferSamples[count] > emptySampleThreshold)
 			{
-				trailingEmptySamples = buffer.getSampleCount() - count;
+				trailingEmptySamples = sampleCount - count;
 				break;
 			}
 		}
@@ -65,14 +81,12 @@ public:
 		return trimmedSampleCount;
 	}
 
-	sf::SoundBuffer getBufferAndSamples(string fileName, short* &samples)
+	sf::SoundBuffer getBufferAndSamples(string fileName)
 	{
-
-		// load an audio buffer from a sound file
-		sf::SoundBuffer buffer;
 		buffer.loadFromFile(fileName);
 
 		cout << "total sample count:" << buffer.getSampleCount() << endl;
+		cout << "samplecount is " << sampleCount << endl;
 		cout << "trimmed sample count:" << trimmedSampleCount << endl;
 		//while(true){}
 		cout << "sample rate:" << buffer.getSampleRate() << endl;
@@ -82,10 +96,10 @@ public:
 		
 
 		const short* tempSamples = buffer.getSamples();
-		long long sampleCount = buffer.getSampleCount();
 		unsigned int channelCount = buffer.getChannelCount();
 		unsigned int sampleRate = buffer.getSampleRate();
 
+		
 
 		short minSample = SHRT_MAX;
 		short maxSample = SHRT_MIN;
@@ -98,11 +112,11 @@ public:
 		//the size of the samples array is already trimmed, which is why we can start at 0 in the for loop
 		//but tempSamples is untrimmed which is why tempSamples[count + leadingEmptySamples] is used
 		int debugcount = 0;
-		for (int count = 0; count < trimmedSampleCount; count++)
+		for (int count = 0; count < sampleCount; count++)
 		{
 			debugcount++;
-			//load samples from buffer into samples[]
-			samples[count] = tempSamples[count + leadingEmptySamples];
+
+			/*
 
 			if (samples[count] < minSample)
 			{
@@ -125,22 +139,64 @@ public:
 				checkpointCount += 25000;
 			}
 
+			*/
+
 		}
-		cout << samples[414157] << endl;
+		//cout << "samples[414156]: " << samples[414156] << endl;
+		//cout << "samples[414157]: " << samples[414157] << endl;
+		//cout << "samples[414158]: " << samples[414158] << endl;
+		cout << "samples:" << samples << endl;
 		cout << "debugcount is " << debugcount << endl;
 		cout << "checkpoint" << endl;
 		cout << "trimmed sample count:" << sf::Uint64(trimmedSampleCount) << endl;
-		cout << "sample rate:" << buffer.getSampleRate() << endl;
 		cout << "channels:" << buffer.getChannelCount() << endl;
+		cout << "sample rate:" << buffer.getSampleRate() << endl;
+		cout << "duration: " << buffer.getDuration().asSeconds() << endl;
+		//cout << "channels:" << channelCount << endl;
+		//cout << "sample rate:" << sampleRate << endl;
 
-		buffer.loadFromSamples(samples, sf::Uint64(trimmedSampleCount), channelCount, sampleRate);
+			
 
-		while (true) {}
+		buffer.loadFromSamples(samples, sampleCount, channelCount, sampleRate);
 
 		return buffer;
 	}
 
+
+
+	RhythmAccuracy loadRhythmAccuracy(int bpm, string shortestNote)
+	{
+		RhythmAccuracy rAcc;
+		rAcc.setSamples(getSamples());
+		rAcc.setSampleInfo(sampleCount, sampleRate, channelCount);
+		rAcc.setLeadingEmptySamples(leadingEmptySamples);
+		rAcc.setTrailingEmptySamples(trailingEmptySamples);
+		rAcc.setBpm(bpm);
+		rAcc.setShortestNote(shortestNote);
+		rAcc.findNoteLocations();
+
+		return rAcc;
+
+	}
+
 private:
+
+	void loadSamples()
+	{
+		const short* tempSamples = buffer.getSamples();
+		for (int count = 0; count < sampleCount; count++)
+		{
+			//load samples from buffer into samples[]
+			samples[count] = tempSamples[count];
+		}
+	}
+
+	short* samples;
+	long long sampleCount;
+	int sampleRate;
+	int channelCount;
+
+	sf::SoundBuffer buffer;
 
 	string fileName;
 	int leadingEmptySamples;
