@@ -33,7 +33,7 @@ int main()
 	stream.load(buffer);
 
 
-	cout << "te6gkbbfgldbkjffgghhgfjk,gjmigrrjbfhfd2" << endl;
+	cout << "te6gkbbfgldbkjffghhghhdfffghhgfjk,fffbgjmigrrjblfhfd2" << endl;
 	WindowMaker windowMaker;
 
 	int displaySamplesAmount = sampleCount / 25000;
