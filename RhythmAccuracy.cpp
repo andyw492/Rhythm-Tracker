@@ -93,9 +93,9 @@ public:
 
 		short newNoteSampleThreshold = 100; //the minimum value a sample can have to be counted as a new note
 
-		cout << "sample count: " << sampleCount << endl;
-		cout << "leading: " << leadingEmptySamples << endl;
-		cout << "trailing: " << trailingEmptySamples << endl;
+		//cout << "sample count: " << sampleCount << endl;
+		//cout << "leading: " << leadingEmptySamples << endl;
+		//cout << "trailing: " << trailingEmptySamples << endl;
 		//while(true){}
 
 		//1) find first note
@@ -128,7 +128,7 @@ public:
 
 			if (currentSampleIndex > 50000 && currentSampleIndex < 150000)
 			{
-				cout << "currentSampleIndex after waiting is " << currentSampleIndex << endl;
+				//cout << "currentSampleIndex after waiting is " << currentSampleIndex << endl;
 			}
 			
 			//if there are less than 1000 non zero samples remaining (i.e. the next average cant be computed)
@@ -205,18 +205,18 @@ public:
 				int currentSampleIndexEnd = currentSampleIndexStart + 40000;
 				if (currentSampleIndex < currentSampleIndexEnd && currentSampleIndex > currentSampleIndexStart)
 				{
-					cout << "currentSampleIndex is " << currentSampleIndex << endl;
-					cout << "avg_abs_sampleValue is " << avg_abs_sampleValue << endl;
+					//cout << "currentSampleIndex is " << currentSampleIndex << endl;
+					//cout << "avg_abs_sampleValue is " << avg_abs_sampleValue << endl;
 					//cout << "previousAverage is " << previousAverage << endl;
-					cout << "previousAverage * 1.5 is " << (previousAverage * 1.5) << endl;
-					cout << endl;
+					//cout << "previousAverage * 1.5 is " << (previousAverage * 1.5) << endl;
+					//cout << endl;
 				}
 
 				if (avg_abs_sampleValue > (previousAverage * 1.5))
 				{
 					if (currentSampleIndex < currentSampleIndexEnd && currentSampleIndex > currentSampleIndexStart)
 					{
-						cout << "avg_abs_sampleValue > (previousAverage * 2), increasingAverageCount is " << increasingAverageCount << endl;
+						//cout << "avg_abs_sampleValue > (previousAverage * 2), increasingAverageCount is " << increasingAverageCount << endl;
 					}
 
 					increasingAverageCount++;
@@ -239,21 +239,10 @@ public:
 
 					if (increasingAverageCount == increasingAverageCountThreshold)
 					{
-						if (currentSampleIndex < currentSampleIndexEnd && currentSampleIndex > currentSampleIndexStart)
-						{
-							cout << "at threshold, avg_abs_sampleValue is " << avg_abs_sampleValue << endl;
-							cout << endl;
-						}
-
 						nextNoteCandidateFound = true;
 
 						if (avg_abs_sampleValue > newNoteSampleThreshold)
 						{
-							if (currentSampleIndex < currentSampleIndexEnd && currentSampleIndex > currentSampleIndexStart)
-							{
-								cout << "pushing back" << endl;
-								cout << endl;
-							}
 							
 							//correct the offset created by the algorithm that finds the notes
 							int correctedSampleIndex = currentSampleIndex - 2000;
@@ -289,17 +278,75 @@ public:
 			//4) repeat from (2) until the end of the non zero samples has been reached
 		}
 
-		cout << "noteLocationSampleValues size: " << noteLocationSampleValues.size() << endl;
+		//cout << "noteLocationSampleValues size: " << noteLocationSampleValues.size() << endl;
 		
 		for (int count = 0; count < noteLocations.size(); count++)
 		{
 			cout << "Note location " << count << ": " << noteLocations[count] << ", time: " << (noteLocations[count] / double(sampleRate * channelCount)) << ", sample: " << noteLocationSampleValues[count] << endl;
 		}
 
-		cout << "got here" << endl;
-		while (true) {}
 		
 		return noteLocations;
+	}
+
+	vector<int> findExpectedNoteLocations()
+	{
+
+		vector<int> noteLocations(findNoteLocations());
+		vector<int> expectedNoteLocations;
+
+		if (noteLocations.size() == 0)
+		{
+			return expectedNoteLocations;
+		}
+
+		int sampleIndex = noteLocations[0];
+		expectedNoteLocations.push_back(sampleIndex);
+
+		double notesPerSecond = 1 / (bpm / 60.0);
+		double sampleIndexIncrementCount = notesPerSecond * shortestNote * sampleRate * channelCount;
+
+		for (int i = 1; i < noteLocations.size(); i++)
+		{
+			bool noteFound = false;
+
+			while (!noteFound)
+			{
+				if (sampleIndex + sampleIndexIncrementCount >= sampleCount - trailingEmptySamples)
+				{
+					break;
+				}
+
+				sampleIndex += sampleIndexIncrementCount;
+
+				int noteSearchStart = sampleIndex - (0.75 * sampleIndexIncrementCount);
+				int noteSearchEnd = sampleIndex + (0.75 * sampleIndexIncrementCount);
+
+				//cout << "note location: " << noteLocations[i] << endl;
+				//cout << "note search start: " << noteSearchStart << endl;
+				//cout << "note search end: " << noteSearchEnd << endl;
+
+				if (noteLocations[i] > noteSearchStart && noteLocations[i] < noteSearchEnd)
+				{
+					//cout << "found note: " << noteLocations[i] << endl;
+					noteFound = true;
+					expectedNoteLocations.push_back(sampleIndex);
+				}
+
+				//cout << endl;
+			}
+
+
+		}
+
+		for (int i = 0; i < expectedNoteLocations.size(); i++)
+		{
+			//cout << i << ": " << expectedNoteLocations[i] << endl;
+		}
+
+		//while(true){}
+
+		return expectedNoteLocations;
 	}
 
 	void printSamples()

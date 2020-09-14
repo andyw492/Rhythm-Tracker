@@ -173,13 +173,12 @@ public:
 		rAcc.setTrailingEmptySamples(trailingEmptySamples);
 		rAcc.setBpm(bpm);
 		rAcc.setShortestNote(shortestNote);
-		rAcc.findNoteLocations();
 
 		return rAcc;
 
 	}
 
-private:
+//private:
 
 	void loadSamples()
 	{
