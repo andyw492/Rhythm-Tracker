@@ -57,7 +57,7 @@ public:
 		3a) record the next 1000 samples and find the average of those samples' absolute values
 		(1000 samples = approx. 0.01 seconds = approx. 1/50 of a quarter note at 120 bpm)
 	
-		3b) if the current average is >50x the previous average AND is >100
+		3b) if the current average is >5x the previous average AND is >100
 				mark the previous average value as a previousAverage
 				mark the current average value location (the first of the 1000 samples)
 				as an averageSpikeLocation and go to (3c)
@@ -122,11 +122,11 @@ public:
 
 			//2) wait 3/4 of the length between the start of the last found note and the 
 			//expected start of the next note (based on bpm and shortest note length) using the formula:
-			//waitLength = 0.75 * (seconds per beat * shortest note length) * (sample rate * channel count)
-			int waitLength = 0.75 * ((60.0 / bpm) * shortestNote) * (sampleRate * channelCount);
+			//waitLength = 0.5 * (seconds per beat * shortest note length) * (sample rate * channel count)
+			int waitLength = 0.5 * ((60.0 / bpm) * shortestNote) * (sampleRate * channelCount);
 			currentSampleIndex += waitLength;
 
-			if (currentSampleIndex > 190000 && currentSampleIndex < 230000)
+			if (currentSampleIndex > 50000 && currentSampleIndex < 150000)
 			{
 				cout << "currentSampleIndex after waiting is " << currentSampleIndex << endl;
 			}
@@ -142,7 +142,7 @@ public:
 			3a) record the next 1000 samples and find the maximum sample value
 			(1000 samples = approx. 0.01 seconds = 1 / 50 of a quarter note at 120 bpm)
 
-			3b) if the current average is >50x the previous average
+			3b) if the current average is >5x the previous average
 					mark the previous average value as a previousAverage
 					mark the current average value location(the first of the 1000 samples)
 					as a firstIncreasingAverageLocation and go to(3c)
@@ -169,7 +169,13 @@ public:
 			double prev_avg_abs_sampleValue = INT_MAX; //set to INT_MAX so that the first 1000 samples
 													   //isnt automatically interpreted as an increase
 
-			double previousAverage = 10; 
+			double previousAverage = 0;
+			for (int count = currentSampleIndex; count < (currentSampleIndex + 1000); count++)
+			{
+				previousAverage += abs(samples[count]);
+			}
+			previousAverage /= 1000;
+			currentSampleIndex += 1000;
 			//a new value is set when the current average >50x the previous average and
 			//there is no value for firstIncreasingAverageLocation
 
@@ -195,22 +201,28 @@ public:
 				//cin >> increasingAverageCount;
 
 				//(3b)
-				if (currentSampleIndex < 150000)
+				int currentSampleIndexStart = 470000;
+				int currentSampleIndexEnd = currentSampleIndexStart + 40000;
+				if (currentSampleIndex < currentSampleIndexEnd && currentSampleIndex > currentSampleIndexStart)
 				{
+					cout << "currentSampleIndex is " << currentSampleIndex << endl;
 					cout << "avg_abs_sampleValue is " << avg_abs_sampleValue << endl;
-					cout << "previousAverage is " << previousAverage << endl;
-					cout << "previousAverage * 50 is " << (previousAverage * 50) << endl;
+					//cout << "previousAverage is " << previousAverage << endl;
+					cout << "previousAverage * 1.5 is " << (previousAverage * 1.5) << endl;
+					cout << endl;
 				}
-				if (avg_abs_sampleValue > (previousAverage * 50))
+
+				if (avg_abs_sampleValue > (previousAverage * 1.5))
 				{
+					if (currentSampleIndex < currentSampleIndexEnd && currentSampleIndex > currentSampleIndexStart)
+					{
+						cout << "avg_abs_sampleValue > (previousAverage * 2), increasingAverageCount is " << increasingAverageCount << endl;
+					}
+
 					increasingAverageCount++;
 
 					if (!firstIncreasingAverageLocation)
 					{
-						if (prev_avg_abs_sampleValue != INT_MAX)
-						{
-							previousAverage = prev_avg_abs_sampleValue;
-						}
 						
 						firstIncreasingAverageLocation = currentSampleIndex - 1000;
 						//currentSampleIndex - 1000 is the location of the first sample in the last group of 1000
@@ -227,12 +239,27 @@ public:
 
 					if (increasingAverageCount == increasingAverageCountThreshold)
 					{
+						if (currentSampleIndex < currentSampleIndexEnd && currentSampleIndex > currentSampleIndexStart)
+						{
+							cout << "at threshold, avg_abs_sampleValue is " << avg_abs_sampleValue << endl;
+							cout << endl;
+						}
+
 						nextNoteCandidateFound = true;
 
-						if (abs(samples[currentSampleIndex]) > newNoteSampleThreshold)
+						if (avg_abs_sampleValue > newNoteSampleThreshold)
 						{
-							noteLocations.push_back(currentSampleIndex);
-							noteLocationSampleValues.push_back(samples[currentSampleIndex]); //for debugging
+							if (currentSampleIndex < currentSampleIndexEnd && currentSampleIndex > currentSampleIndexStart)
+							{
+								cout << "pushing back" << endl;
+								cout << endl;
+							}
+							
+							//correct the offset created by the algorithm that finds the notes
+							int correctedSampleIndex = currentSampleIndex - 2000;
+							
+							noteLocations.push_back(correctedSampleIndex);
+							noteLocationSampleValues.push_back(samples[correctedSampleIndex]); //for debugging
 						}
 					}
 
@@ -240,6 +267,7 @@ public:
 				else //avg_abs_sampleValue <50x prev_avg_abs_sampleValue
 				{
 					firstIncreasingAverageLocation = 0;
+					increasingAverageCount = 0;
 				}
 
 				//if there are less than 1000 non zero samples remaining
@@ -249,7 +277,12 @@ public:
 					endOfSamplesReached = true;
 				}
 
-				prev_avg_abs_sampleValue = avg_abs_sampleValue;
+				if (increasingAverageCount == 0)
+				{
+
+					previousAverage = avg_abs_sampleValue;
+				}
+				
 				
 			}
 
@@ -257,10 +290,10 @@ public:
 		}
 
 		cout << "noteLocationSampleValues size: " << noteLocationSampleValues.size() << endl;
-
+		
 		for (int count = 0; count < noteLocations.size(); count++)
 		{
-			cout << "Note location " << count << ": " << noteLocations[count] << ", sample: " << noteLocationSampleValues[count] << endl;
+			cout << "Note location " << count << ": " << noteLocations[count] << ", time: " << (noteLocations[count] / double(sampleRate * channelCount)) << ", sample: " << noteLocationSampleValues[count] << endl;
 		}
 
 		cout << "got here" << endl;

@@ -14,7 +14,7 @@ int main()
 	int bpm = 150; 
 	string shortestNote = "eighth";
 
-	string fileName = "Recording (99).wav";
+	string fileName = "Recording (112).wav";
 
 	AudioAnalyzer analyzer(fileName);
 
@@ -33,7 +33,7 @@ int main()
 	stream.load(buffer);
 
 
-	cout << "te6gkbbfgldbkjffghhghhdfffghhgfjk,fffbgjmigrrjblfhfd2" << endl;
+	cout << "te6gkbbfgldbkjffghh,vnvfb vdcfvbjjllcvvnvvvvvvccvcbbcccghhdfffgbhhgfjk,fffbgjmigrrjblfhfd2" << endl;
 	WindowMaker windowMaker;
 
 	int displaySamplesAmount = sampleCount / 25000;
