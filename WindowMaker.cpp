@@ -22,21 +22,21 @@ public:
 		int maxSampleCount;
 
 		int displaySampleCount = 0;
-		for (int count = 0; count < sampleCount; count++)
+		for (int i = 0; i < sampleCount; i++)
 		{
 
-			if (samples[count] < minSample)
+			if (samples[i] < minSample)
 			{
-				minSample = samples[count];
-				minSampleCount = count;
+				minSample = samples[i];
+				minSampleCount = i;
 			}
-			if (samples[count] > maxSample)
+			if (samples[i] > maxSample)
 			{
-				maxSample = samples[count];
-				maxSampleCount = count;
+				maxSample = samples[i];
+				maxSampleCount = i;
 			}
 
-			if (count % 25000 == 0 && count > 0)
+			if (i % 25000 == 0 && i > 0)
 			{
 				displaySamples[displaySampleCount] = maxSample;
 
@@ -56,29 +56,29 @@ public:
 		cout << "\n\ndisplay samples:" << endl;
 		//load displaySampleProportions, which represent displaySamples as proportions of the maximum displaySample
 		//e.g. if a displaySamplePropotion == 0.5, then it is half the value of the maximum displaySample
-		for (int count = 0; count < displaySamplesAmount; count++)
+		for (int i = 0; i < displaySamplesAmount; i++)
 		{
-			if (displaySamples[count] > maxSample)
+			if (displaySamples[i] > maxSample)
 			{
-				maxSample = displaySamples[count];
+				maxSample = displaySamples[i];
 			}
-			cout << "count: " << count << " sample: " << displaySamples[count] << endl;
+			cout << "count: " << i << " sample: " << displaySamples[i] << endl;
 		}
 
-		for (int count = 0; count < displaySamplesAmount; count++)
+		for (int i = 0; i < displaySamplesAmount; i++)
 		{
-			displaySampleProportions[count] = (double(displaySamples[count]) / double(maxSample));
-			cout << "proportion: " << displaySampleProportions[count] << endl;
+			displaySampleProportions[i] = (double(displaySamples[i]) / double(maxSample));
+			cout << "proportion: " << displaySampleProportions[i] << endl;
 		}
 
 		//load the rectangles vector with displaySampleProportions
 		double maxRectangleHeight = 300;
-		for (int count = 0; count < displaySamplesAmount; count++)
+		for (int i = 0; i < displaySamplesAmount; i++)
 		{
-			double currentRectangleHeight = displaySampleProportions[count] * maxRectangleHeight;
+			double currentRectangleHeight = displaySampleProportions[i] * maxRectangleHeight;
 			sf::RectangleShape rectangle(sf::Vector2f(1.f, float(currentRectangleHeight)));
 			rectangle.setFillColor(sf::Color::Green);
-			rectangle.setPosition(float(count * 10), float(maxRectangleHeight - currentRectangleHeight)); //the rectangle starts from the maxRectangleHeight and goes down
+			rectangle.setPosition(float(i * 10), float(maxRectangleHeight - currentRectangleHeight)); //the rectangle starts from the maxRectangleHeight and goes down
 			rectangles.push_back(rectangle);
 		}
 
@@ -96,11 +96,11 @@ public:
 
 		getRectangles(rectangles, displaySamples, displaySamplesAmount);
 		/*
-		for (int count = 0; count < 40; count++)
+		for (int i = 0; i < 40; count++)
 		{
-			sf::RectangleShape rectangle(sf::Vector2f(1.f, float(count * 10)));
+			sf::RectangleShape rectangle(sf::Vector2f(1.f, float(i * 10)));
 			rectangle.setFillColor(sf::Color::Green);
-			rectangle.setPosition(float(count * 10), float(300 - count * 10));
+			rectangle.setPosition(float(i * 10), float(300 - i * 10));
 			rectangles.push_back(rectangle);
 		}
 		*/
@@ -120,9 +120,9 @@ public:
 			window.clear(sf::Color::Black);
 
 			//draw each rectangle on the window
-			for (int count = 0; count < rectangles.size(); count++)
+			for (int i = 0; i < rectangles.size(); i++)
 			{
-				window.draw(rectangles[count]);
+				window.draw(rectangles[i]);
 			}
 
 			window.display();

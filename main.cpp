@@ -12,32 +12,32 @@ int main()
 {
 	cout << "Please make sure the audio file is a .wav file" << endl;
 
-	//make these an input from window later
+	// TODO: make fileName, bpm, and shortestNote user input
 	string fileName;
 	cout << "Enter the file name: ";
-	getline(cin, fileName);
+	fileName = "Recording (99).wav"; cout << endl;
 
 	int bpm;
 	cout << "Enter the BPM: ";
-	cin >> bpm;
+	bpm = 150; cout << endl;
 
 	string shortestNote;
 	cout << "Enter the shortest note length (quarter/eighth/sixteenth): ";
-	cin >> shortestNote;
+	shortestNote = "eighth"; cout << endl;
 
 	AudioAnalyzer analyzer(fileName);
 
-	//int sampleCount = analyzer.getTrimmedSampleCount(fileName);
-	int sampleCount = analyzer.getTrimmedSampleCount(fileName);
-	//short* samples;// = new short[sampleCount];
-	//cout << "sampleCount is " << sampleCount << endl;
+	int sampleCount = analyzer.getSampleCount();
+	cout << "main.cpp: sampleCount is " << sampleCount << endl;
 
-	sf::SoundBuffer buffer(analyzer.getBufferAndSamples(fileName)); //samples is passed by reference
+	// get the buffer for the audio to be played back to the user later
+	sf::SoundBuffer buffer(analyzer.getBuffer(fileName));
 
 	
 	RhythmAccuracy rAcc(analyzer.loadRhythmAccuracy(bpm, shortestNote));
 	vector<int> noteLocations(rAcc.findNoteLocations());
 	vector<int> expectedNoteLocations(rAcc.findExpectedNoteLocations());
+
 
 	if (noteLocations.size() != expectedNoteLocations.size())
 	{
@@ -45,7 +45,7 @@ int main()
 		return 1;
 	}
 
-	double samplesPerSecond = analyzer.sampleRate * analyzer.channelCount; //for debugging
+	double samplesPerSecond = analyzer.getSampleRate() * analyzer.getChannelCount(); //for debugging
 
 	vector<double> timeDifference;
 
@@ -62,14 +62,16 @@ int main()
 		cout << "note " << i << " is " << timeDifference[i] * (150 / 60.0) << " beats off" << endl;
 	}
 
+	
 	while(true){}
 
 	// initialize our custom stream
 	AudioStream stream;
 	stream.load(buffer);
 
-
-	cout << "te6gkbbfgldbkjffghh,vvnvfb vdcffvfbhvvffll;fbbjjllcvvnvvvvvvccvcbbcccghhdfffgbhhgfjk,fffbgjmigrrjblfhfd2" << endl;
+	// for some reason, a change needs to be made somewhere in main.cpp for each new compile
+	string compileChange = "q";
+	
 	WindowMaker windowMaker;
 
 	int displaySamplesAmount = sampleCount / 25000;

@@ -1,0 +1,25 @@
+findExpectedNoteLocations()
+
+	get noteLocations vector from findNoteLocations
+
+	make expectedNoteLocations vector
+
+	make sampleIndex int
+
+	set sampleIndex to sample index of first note
+
+	push_back sampleIndex (the first note location) into expectedNoteLocations
+
+	while sampleIndex + N (defined below) is less than sampleCount - trailingEmptySamples:
+
+		increase sampleIndex by N samples, where N = shortestNote * sampleRate * channelCount
+
+		if there is a note location within M samples, where M = 0.25 * shortestNote * N,
+		(i.e. if there is a note location within 1/4 of the shortest beat length)
+		then:
+		
+			push_back sampleIndex into expectedNoteLocations
+
+	[end of while loop]
+
+	return expectedNoteLocations vector
