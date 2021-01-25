@@ -129,11 +129,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\AudioAnalyzer.cpp" />
-    <ClCompile Include="src\AudioStream.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\RhythmAccuracy.cpp" />
-    <ClCompile Include="src\WindowMaker.cpp" />
+    <ClCompile Include="AudioAnalyzer.cpp" />
+    <ClCompile Include="AudioStream.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="RhythmAccuracy.cpp" />
+    <ClCompile Include="WindowMaker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="openal32.dll" />
@@ -159,14 +159,10 @@
   <ItemGroup>
     <Media Include="Recording (112).wav" />
     <Media Include="Recording (113).wav" />
+    <Media Include="Recording (150).wav" />
     <Media Include="Recording (82).wav" />
     <Media Include="Recording (91).wav" />
     <Media Include="Recording (99).wav" />
-    <Media Include="src\Recording (112).wav" />
-    <Media Include="src\Recording (113).wav" />
-    <Media Include="src\Recording (82).wav" />
-    <Media Include="src\Recording (91).wav" />
-    <Media Include="src\Recording (99).wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

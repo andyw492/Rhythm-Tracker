@@ -15,19 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\AudioAnalyzer.cpp">
+    <ClCompile Include="AudioStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\AudioStream.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="RhythmAccuracy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\RhythmAccuracy.cpp">
+    <ClCompile Include="AudioAnalyzer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\WindowMaker.cpp">
+    <ClCompile Include="WindowMaker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,21 +53,6 @@
     <Text Include="changelog.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Media Include="src\Recording (82).wav">
-      <Filter>Resource Files</Filter>
-    </Media>
-    <Media Include="src\Recording (91).wav">
-      <Filter>Resource Files</Filter>
-    </Media>
-    <Media Include="src\Recording (99).wav">
-      <Filter>Resource Files</Filter>
-    </Media>
-    <Media Include="src\Recording (112).wav">
-      <Filter>Resource Files</Filter>
-    </Media>
-    <Media Include="src\Recording (113).wav">
-      <Filter>Resource Files</Filter>
-    </Media>
     <Media Include="Recording (82).wav">
       <Filter>Resource Files</Filter>
     </Media>
@@ -78,6 +63,9 @@
       <Filter>Resource Files</Filter>
     </Media>
     <Media Include="Recording (112).wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Recording (150).wav">
       <Filter>Resource Files</Filter>
     </Media>
     <Media Include="Recording (113).wav">

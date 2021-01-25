@@ -35,39 +35,73 @@ public:
 		if (shortestNote == "sixteenth") { this->shortestNote = 0.25; }
 	}
 
-	/*
-	algorithm for finding new notes:
+	// function called in main.cpp
+	// returns a vector of the differences between found note location and expected note location for each beat
+	// if there is no note in a beat, then INT_MIN is stored for that beat
+	vector<double> findBeatDifferences()
+	{
+		vector<double> beatDifferences;
+		vector<int> noteLocations(findNoteLocations());
+		vector<int> expectedNoteLocations(findExpectedNoteLocations());
 
-	1) find first note by looking for the first sample that is >100
+		double samplesPerSecond = sampleRate * channelCount;
+		for (int i = 0; i < noteLocations.size(); i++)
+		{
+			// if there was no note at the expected note location
+			if (expectedNoteLocations[i] == INT_MAX)
+			{
+				// a value of INT_MAX in beatDifferences shows that were was no note
+				beatDifferences.push_back(INT_MAX);
 
-	2) wait 1/2 of the length between the start of the last found note and the expected start of the next note
-	(based on bpm and shortest note length)
-
-	3) look for the next note:
-
-		3a) record the next 1000 samples and find the average of those samples' absolute values
-		(1000 samples = approx. 0.01 seconds = approx. 1/50 of a quarter note at 120 bpm)
-	
-		3b) if the current average is >5x the previous average AND is >100
-				mark the previous average value as a previousAverage
-				mark the current average value location (the first of the 1000 samples)
-				as an averageSpikeLocation and go to (3c)
-
-				record the next two 1000 sample averages
-				if both of those averages are each >50x the previousAverage value
-					mark the averageSpikeLocation as a newNoteLocation
-				else
-					go to (3a)
+				// noteLocations needs to insert INT_MAX at i if there is no note to keep it synced with expectedNoteLocations
+				noteLocations.insert(noteLocations.begin() + i, INT_MAX);
+			}
 			else
-				go to (3a)
-				
+			{
+				// fill beatDifferences with expectedNoteLocations[i] - noteLocations[i] converted from samples to seconds
+				beatDifferences.push_back((expectedNoteLocations[i] / samplesPerSecond) - (noteLocations[i] / samplesPerSecond));
+			}
+			
+		}
 
+		return beatDifferences;
+	}
 
-	4) repeat from (2) until the end of the non zero samples has been reached
-	*/
-
+	// returns a vector of the sample index of each note found
+	// (sample index can easily be converted to time or beat number)
 	vector<int> findNoteLocations()
 	{
+
+		/*
+		algorithm for finding new notes:
+
+		1) find first note by looking for the first sample that is >100
+
+		2) wait 1/2 of the length between the start of the last found note and the expected start of the next note
+		(based on bpm and shortest note length)
+
+		3) look for the next note:
+
+			3a) record the next 1000 samples and find the average of those samples' absolute values
+			(1000 samples = approx. 0.01 seconds = approx. 1/50 of a quarter note at 120 bpm)
+
+			3b) if the current average is >5x the previous average AND is >100
+					mark the previous average value as a previousAverage
+					mark the current average value location (the first of the 1000 samples)
+					as an averageSpikeLocation and go to (3c)
+
+					record the next two 1000 sample averages
+					if both of those averages are each >50x the previousAverage value
+						mark the averageSpikeLocation as a newNoteLocation
+					else
+						go to (3a)
+				else
+					go to (3a)
+
+
+
+		4) repeat from (2) until the end of the non zero samples has been reached
+		*/
 
 		vector<int> noteLocations;
 		vector<short> noteLocationSampleValues; //for debugging
@@ -224,17 +258,12 @@ public:
 		return noteLocations;
 	}
 
-	// TODO: documentation
+	// returns a vector of the expected (i.e. rhythmically correct) locations for each note in noteLocations
 	vector<int> findExpectedNoteLocations()
 	{
 
 		vector<int> noteLocations(findNoteLocations());
 		vector<int> expectedNoteLocations;
-
-		for (int i = 0; i < noteLocations.size(); i++)
-		{
-			cout << "Note location " << i << ": " << noteLocations[i] << ", time: " << (noteLocations[i] / double(sampleRate * channelCount)) << endl;
-		}
 
 		if (noteLocations.size() == 0)
 		{
@@ -244,9 +273,14 @@ public:
 		int sampleIndex = noteLocations[0];
 		expectedNoteLocations.push_back(sampleIndex);
 
+		// sampleIndexIncrementCount is the number of samples for each beat
 		double notesPerSecond = 1 / (bpm / 60.0);
 		double sampleIndexIncrementCount = notesPerSecond * shortestNote * sampleRate * channelCount;
 
+		// starting at the sample index of the first note, increment sampleIndex by the number of samples per beat
+		// until there is a note that corresponds to the current beat
+		// when a corresponding note is found (i.e. the next note in noteLocations), 
+		// push it into expectedNoteLocations and end the for loop iteration to begin looking for the next note
 		for (int i = 1; i < noteLocations.size(); i++)
 		{
 			bool noteFound = false;
@@ -268,9 +302,12 @@ public:
 					noteFound = true;
 					expectedNoteLocations.push_back(sampleIndex);
 				}
+				else
+				{
+					// a value of INT_MAX in expectedNoteLocations shows that there was no note
+					expectedNoteLocations.push_back(INT_MAX);
+				}
 			}
-
-
 		}
 
 		return expectedNoteLocations;
