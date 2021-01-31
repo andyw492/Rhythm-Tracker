@@ -3,26 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.1259
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Rhythm-Tracker", "Rhythm-Tracker\Rhythm-Tracker.vcxproj", "{8797236A-CDDE-4263-9EFB-37A2621D7ADC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Rhythm-Tracker", "Rhythm-Tracker.vcxproj", "{8797236A-CDDE-4263-9EFB-37A2621D7ADC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
-		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8797236A-CDDE-4263-9EFB-37A2621D7ADC}.Debug|Win32.ActiveCfg = Debug|Win32
-		{8797236A-CDDE-4263-9EFB-37A2621D7ADC}.Debug|Win32.Build.0 = Debug|Win32
 		{8797236A-CDDE-4263-9EFB-37A2621D7ADC}.Debug|x64.ActiveCfg = Debug|x64
 		{8797236A-CDDE-4263-9EFB-37A2621D7ADC}.Debug|x64.Build.0 = Debug|x64
 		{8797236A-CDDE-4263-9EFB-37A2621D7ADC}.Debug|x86.ActiveCfg = Debug|Win32
 		{8797236A-CDDE-4263-9EFB-37A2621D7ADC}.Debug|x86.Build.0 = Debug|Win32
-		{8797236A-CDDE-4263-9EFB-37A2621D7ADC}.Release|Win32.ActiveCfg = Release|Win32
-		{8797236A-CDDE-4263-9EFB-37A2621D7ADC}.Release|Win32.Build.0 = Release|Win32
 		{8797236A-CDDE-4263-9EFB-37A2621D7ADC}.Release|x64.ActiveCfg = Release|x64
 		{8797236A-CDDE-4263-9EFB-37A2621D7ADC}.Release|x64.Build.0 = Release|x64
 		{8797236A-CDDE-4263-9EFB-37A2621D7ADC}.Release|x86.ActiveCfg = Release|Win32
@@ -32,6 +26,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {1085172A-6DED-4C8E-9166-DF697FFF308C}
+		SolutionGuid = {6FFEEB3C-4077-4317-94AE-5DA5BAA6B736}
 	EndGlobalSection
 EndGlobal

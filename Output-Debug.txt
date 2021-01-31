@@ -1,0 +1,96 @@
+﻿'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Users\Andy Wang\Desktop\Rhythm-Tracker backup\Debug\Rhythm-Tracker.exe'. Symbols loaded.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\ntdll.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\kernel32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\KernelBase.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Users\Andy Wang\Desktop\Rhythm-Tracker backup\Debug\sfml-graphics-d-2.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Users\Andy Wang\Desktop\Rhythm-Tracker backup\Debug\sfml-window-d-2.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\gdi32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\win32u.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\gdi32full.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\msvcp_win.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\ucrtbase.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\user32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\advapi32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\msvcrt.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\sechost.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\rpcrt4.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Users\Andy Wang\Desktop\Rhythm-Tracker backup\Debug\sfml-system-d-2.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Users\Andy Wang\Desktop\Rhythm-Tracker backup\Debug\sfml-audio-d-2.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\msvcp140d.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\vcruntime140d.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\ucrtbased.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\opengl32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\combase.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\winmm.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Users\Andy Wang\Desktop\Rhythm-Tracker backup\Debug\openal32.dll'. Module was built without symbols.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\shell32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\ole32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\glu32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\imm32.dll'. Cannot find or open the PDB file.
+The thread 0x37f4 has exited with code 0 (0x0).
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\windows.storage.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\wldp.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\SHCore.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\shlwapi.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\kernel.appcore.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\bcryptprimitives.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\uxtheme.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\clbcatq.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\MMDevAPI.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\devobj.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\cfgmgr32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Unloaded 'C:\Windows\SysWOW64\cfgmgr32.dll'
+'Rhythm-Tracker.exe' (Win32): Unloaded 'C:\Windows\SysWOW64\devobj.dll'
+'Rhythm-Tracker.exe' (Win32): Unloaded 'C:\Windows\SysWOW64\MMDevAPI.dll'
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\MMDevAPI.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\devobj.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\cfgmgr32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\AudioSes.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\oleaut32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\powrprof.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\umpdc.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\ResourcePolicyClient.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\msctf.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\AppXDeploymentClient.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\System32\DriverStore\FileRepository\nv_dispi.inf_amd64_1c83a5d7cffd7bff\nvoglv32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\setupapi.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\bcrypt.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\version.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\wtsapi32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\msasn1.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\cryptnet.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\crypt32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\cryptbase.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\wintrust.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\ntmarta.dll'. Cannot find or open the PDB file.
+The thread 0x3428 has exited with code 0 (0x0).
+The thread 0x3538 has exited with code 0 (0x0).
+The thread 0x3a40 has exited with code 0 (0x0).
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\DXCore.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\dwmapi.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\winsta.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\dinput8.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\InputHost.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\WinTypes.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\CoreMessaging.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\CoreUIComponents.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\propsys.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\ws2_32.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\hid.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Windows\SysWOW64\TextInputFramework.dll'. Cannot find or open the PDB file.
+'Rhythm-Tracker.exe' (Win32): Loaded 'C:\Program Files (x86)\Overwolf\0.162.0.13\win32\OWExplorer.dll'. Cannot find or open the PDB file.
+The thread 0x38ac has exited with code 0 (0x0).
+The thread 0x2850 has exited with code 0 (0x0).
+'Rhythm-Tracker.exe' (Win32): Unloaded 'C:\Windows\SysWOW64\AppXDeploymentClient.dll'
+The thread 0x3894 has exited with code 0 (0x0).
+The thread 0x4b8 has exited with code 0 (0x0).
+The thread 0x1204 has exited with code 0 (0x0).
+The thread 0x3a1c has exited with code 0 (0x0).
+The thread 0x34d8 has exited with code 0 (0x0).
+The thread 0x33b8 has exited with code 0 (0x0).
+The thread 0x21a8 has exited with code 0 (0x0).
+The thread 0x11d0 has exited with code 0 (0x0).
+The thread 0x2f60 has exited with code 0 (0x0).
+The thread 0x2a0c has exited with code 0 (0x0).
+The thread 0x3524 has exited with code 0 (0x0).
+The program '[13068] Rhythm-Tracker.exe' has exited with code 0 (0x0).

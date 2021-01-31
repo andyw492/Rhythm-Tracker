@@ -1,0 +1,75 @@
+	void printSamples()
+	{
+		cout << "in rhythm accuracy's print samples" << endl;
+		//cout << "samples[10000]: " << samples[10000] << endl;
+		cout << "sampleCount:" << sampleCount << endl;
+
+
+		double minSample = SHRT_MAX;
+		double maxSample = SHRT_MIN;
+
+		int minSampleCount;
+		int maxSampleCount;
+
+		int checkpointCount = 25000;
+
+		bool lookingForNote = true;
+
+		//process of looking for first note goes in a separate for loop here
+
+		for (int count = leadingEmptySamples; count < (sampleCount - trailingEmptySamples); count += 1000)
+		{
+			double avg_abs_samplesAtCount = 0.0;
+			for (int count2 = 0; count2 < 1000; count2++)
+			{
+				avg_abs_samplesAtCount += abs(samples[count + count2]);
+			}
+
+			
+
+			avg_abs_samplesAtCount /= 1000.0;
+
+			//cout << "avg_abs_samplesAtCount:" << avg_abs_samplesAtCount << endl;
+
+			
+
+			/*
+
+
+
+			if (!lookingForNote && abs_samplesAtCount < 200)
+			{
+				//the note that was "found" ends when the sample is less than 200
+				//now, the next note is being looked for
+				//lookingForNote = true;
+			}
+
+			*/
+
+			if (avg_abs_samplesAtCount < minSample)
+			{
+				minSample = avg_abs_samplesAtCount;
+				minSampleCount = count;
+			}
+			if (avg_abs_samplesAtCount > maxSample)
+			{
+				maxSample = avg_abs_samplesAtCount;
+				maxSampleCount = count;
+			}
+
+
+			//leadingEmptySamples is the value where count started in this for loop
+			if ((count - leadingEmptySamples) % 25000 == 0 && count > leadingEmptySamples)
+			{
+				cout << "checkpoint " << checkpointCount << ": minSample is " << minSample
+					<< " at " << minSampleCount << " and maxSample is " << maxSample << " at " << maxSampleCount << endl;
+
+				minSample = SHRT_MAX;
+				maxSample = SHRT_MIN;
+				checkpointCount += 25000;
+			}
+
+		}
+
+		//while(true){}
+	}

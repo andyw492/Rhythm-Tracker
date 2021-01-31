@@ -1,0 +1,16 @@
+﻿1>------ Build started: Project: Rhythm-Tracker, Configuration: Debug Win32 ------
+1>main.cpp
+1>c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\rhythmaccuracy.cpp(49): warning C4018: '<': signed/unsigned mismatch
+1>c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\rhythmaccuracy.cpp(142): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+1>c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\rhythmaccuracy.cpp(285): warning C4018: '<': signed/unsigned mismatch
+1>c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\rhythmaccuracy.cpp(296): warning C4244: '+=': conversion from 'double' to 'int', possible loss of data
+1>c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\rhythmaccuracy.cpp(298): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+1>c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\rhythmaccuracy.cpp(299): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+1>c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\audioanalyzer.cpp(21): warning C4244: 'initializing': conversion from '__int64' to 'unsigned int', possible loss of data
+1>c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\windowmaker.cpp(50): warning C4018: '<': signed/unsigned mismatch
+1>c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\windowmaker.cpp(99): warning C4018: '<': signed/unsigned mismatch
+1>c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\main.cpp(30): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+1>c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\main.cpp(40): warning C4018: '<': signed/unsigned mismatch
+1>Rhythm-Tracker.vcxproj -> C:\Users\Andy Wang\source\repos\Rhythm-Tracker\Debug\Rhythm-Tracker.exe
+1>Done building project "Rhythm-Tracker.vcxproj".
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
