@@ -70,7 +70,7 @@ int main()
 	stream.load(buffer);
 
 	// for some reason, a change needs to be made somewhere in main.cpp for each new compile
-	string compileChange = "q7777877777777777777777777777777777777777778777777777777";
+	string compileChange = "q777787777777777777777777777777777777777777777777777777777778777777777777";
 
 	WindowMaker windowMaker;
 

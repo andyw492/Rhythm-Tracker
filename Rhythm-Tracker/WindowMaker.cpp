@@ -3,7 +3,9 @@
 #include <SFML/Window.hpp>
 #include <iostream>
 #include <vector>
+#include <cassert>
 
+#include "AudioInfo.h"
 #include "AudioStream.cpp"
 
 using namespace std;
@@ -24,6 +26,22 @@ public:
 		//play our custom stream
 		stream.play();
 
+
+
+		// vector of the note locations converted to seconds
+		// used to display each rectangle whenever its note is played
+		vector<double> noteLocations_seconds;
+		cout << "notelocations size is " << AudioInfo::noteLocations.size() << endl;
+		for (int i = 0; i < AudioInfo::noteLocations.size(); i++)
+		{
+			cout << "note location " << i << ": " << (AudioInfo::noteLocations[i] / double(AudioInfo::sampleRate * AudioInfo::channelCount)) << " seconds" << endl;
+			noteLocations_seconds.push_back((AudioInfo::noteLocations[i] / double(AudioInfo::sampleRate * AudioInfo::channelCount)));
+		}
+		//assert(noteLocations_seconds.size() == rectangles.size());
+
+		int noteLocationCount = 0;
+
+
 		while (window.isOpen())
 		{
 			sf::Event event;
@@ -35,8 +53,20 @@ public:
 
 			window.clear(sf::Color::White);
 
-			//draw each rectangle on the window
-			for (int i = 0; i < rectangles.size(); i++)
+
+
+			// if it is time to draw the next rectangle (i.e. the elapsed time >= the next note location), 
+			// then draw the next rectangle
+
+			if (noteLocationCount < noteLocations_seconds.size() &&
+				clock.getElapsedTime().asSeconds() >= noteLocations_seconds[noteLocationCount])
+			{
+				cout << "drawing rectangle number " << noteLocationCount << endl;
+				
+				noteLocationCount++;
+			}
+
+			for (int i = 0; i < noteLocationCount; i++)
 			{
 				window.draw(rectangles[i]);
 			}
@@ -65,6 +95,7 @@ public:
 
 
 		}
+		
 	}
 
 	vector<sf::RectangleShape> getRectanglesFromData(vector<double> beatDifferences)

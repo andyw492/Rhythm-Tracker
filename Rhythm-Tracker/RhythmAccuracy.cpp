@@ -26,8 +26,11 @@ public:
 		
 		
 		double samplesPerBeat = AudioInfo::sampleRate * AudioInfo::channelCount * (60.0 / AudioInfo::bpm);
+		
+		// create a copy of AudioInfo::noteLocations because it needs to be modified to find the beat differences
+		vector<int> tempNoteLocations = AudioInfo::noteLocations;
 
-		for (int i = 0; i < AudioInfo::noteLocations.size(); i++)
+		for (int i = 0; i < tempNoteLocations.size(); i++)
 		{
 
 			// if there was no note at the expected note location
@@ -37,12 +40,12 @@ public:
 				beatDifferences.push_back(INT_MAX);
 
 				// noteLocations needs to insert INT_MAX at i if there is no note to keep it synced with expectedNoteLocations
-				AudioInfo::noteLocations.insert(AudioInfo::noteLocations.begin() + i, INT_MAX);
+				tempNoteLocations.insert(tempNoteLocations.begin() + i, INT_MAX);
 			}
 			else
 			{
 				// fill beatDifferences with expectedNoteLocations[i] - noteLocations[i] converted from samples to beats
-				beatDifferences.push_back((expectedNoteLocations[i] / samplesPerBeat) - (AudioInfo::noteLocations[i] / samplesPerBeat));
+				beatDifferences.push_back((expectedNoteLocations[i] / samplesPerBeat) - (tempNoteLocations[i] / samplesPerBeat));
 			}
 
 		}
