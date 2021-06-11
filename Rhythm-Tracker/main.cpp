@@ -20,11 +20,19 @@ double AudioInfo::shortestNote = -1;
 
 vector<int> AudioInfo::noteLocations;
 
+int AudioInfo::samplesBeforeFirstNote = -1;
+
+// TODO: 
+// make fileName, bpm, and shortestNote user input
+// add start screen
+// add settings
+// add try catch blocks for edge cases/exception handling
+
 int main()
 {
 	cout << "Please make sure the audio file is a .wav file" << endl;
 
-	// TODO: make fileName, bpm, and shortestNote user input
+	
 	string fileName;
 	cout << "Enter the file name: ";
 	fileName = "Recording (150).wav"; cout << endl;
@@ -70,10 +78,9 @@ int main()
 	stream.load(buffer);
 
 	// for some reason, a change needs to be made somewhere in main.cpp for each new compile
-	string compileChange = "q777787777777777777777777777777777777777777777777777777777778777777777777";
+	string compileChange = "q7777877777777777777777777777777777777777777777777777777777777777777778777777777777";
 
 	WindowMaker windowMaker;
-
 	windowMaker.display(beatDifferences, stream);
 	
 

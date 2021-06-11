@@ -17,6 +17,8 @@ public:
 	static double shortestNote;
 
 	static vector<int> noteLocations;
+
+	static int samplesBeforeFirstNote;
 };
 
 #endif

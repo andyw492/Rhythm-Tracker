@@ -14,88 +14,114 @@ class WindowMaker
 {
 public:
 
-	WindowMaker() {}
+	WindowMaker()
+	{
+		displayStartScreen = true;
+	}
 
 	void display(vector<double> beatDifferences, AudioStream &stream)
 	{
-
 		sf::RenderWindow window(sf::VideoMode(1600, 900), "Rhythm Tracker");
 
 		vector<sf::RectangleShape> rectangles(getRectanglesFromData(beatDifferences));
 		sf::Clock clock;
-		//play our custom stream
+
+		// skip all of the audio before the first note in the audio stream
+		sf::Time secondsBeforeFirstNote = sf::seconds(AudioInfo::samplesBeforeFirstNote / float(AudioInfo::sampleRate * AudioInfo::channelCount));
+		stream.setPlayingOffset(secondsBeforeFirstNote);
 		stream.play();
-
-
-
+		
 		// vector of the note locations converted to seconds
 		// used to display each rectangle whenever its note is played
 		vector<double> noteLocations_seconds;
 		cout << "notelocations size is " << AudioInfo::noteLocations.size() << endl;
 		for (int i = 0; i < AudioInfo::noteLocations.size(); i++)
 		{
-			cout << "note location " << i << ": " << (AudioInfo::noteLocations[i] / double(AudioInfo::sampleRate * AudioInfo::channelCount)) << " seconds" << endl;
-			noteLocations_seconds.push_back((AudioInfo::noteLocations[i] / double(AudioInfo::sampleRate * AudioInfo::channelCount)));
+			double currentNoteLocation_seconds = (AudioInfo::noteLocations[i] / double(AudioInfo::sampleRate * AudioInfo::channelCount));
+
+			// shift the real note locations left so that the audio before the first note can be skipped
+			// (the note locations need to be modified because they are used to determine when to display each rectangle)
+			currentNoteLocation_seconds -= double(secondsBeforeFirstNote.asSeconds());
+
+			noteLocations_seconds.push_back(currentNoteLocation_seconds);
 		}
-		//assert(noteLocations_seconds.size() == rectangles.size());
 
 		int noteLocationCount = 0;
 
 
 		while (window.isOpen())
 		{
-			sf::Event event;
-			while (window.pollEvent(event))
+			//--------------------START SCREEN--------------------------
+			if (displayStartScreen)
 			{
-				if (event.type == sf::Event::Closed)
-					window.close();
+				cout << "at start screen" << endl;
+				displayStartScreen = false;
 			}
-
-			window.clear(sf::Color::White);
-
-
-
-			// if it is time to draw the next rectangle (i.e. the elapsed time >= the next note location), 
-			// then draw the next rectangle
-
-			if (noteLocationCount < noteLocations_seconds.size() &&
-				clock.getElapsedTime().asSeconds() >= noteLocations_seconds[noteLocationCount])
+			//--------------------MAIN SCREEN---------------------------
+			else
 			{
-				cout << "drawing rectangle number " << noteLocationCount << endl;
 				
-				noteLocationCount++;
+				
+				sf::Event event;
+				while (window.pollEvent(event))
+				{
+					if (event.type == sf::Event::Closed)
+						window.close();
+
+				}
+
+				window.clear(sf::Color::White);
+
+				// if it is time to draw the next rectangle (i.e. the elapsed time >= the next note location), 
+				// then draw the next rectangle
+
+				if (noteLocationCount < noteLocations_seconds.size() &&
+					clock.getElapsedTime().asSeconds() >= noteLocations_seconds[noteLocationCount])
+				{
+					cout << "drawing rectangle number " << noteLocationCount << endl;
+
+					noteLocationCount++;
+				}
+
+				for (int i = 0; i < noteLocationCount; i++)
+				{
+					window.draw(rectangles[i]);
+				}
+
+				// draw the axes
+				sf::RectangleShape yAxis(sf::Vector2f(5.f, 500.f));
+				yAxis.setFillColor(sf::Color::Black);
+				yAxis.setPosition(195.f, 200.f);
+
+				sf::RectangleShape xAxis(sf::Vector2f(800.f, 5.f));
+				xAxis.setFillColor(sf::Color::Black);
+				xAxis.setPosition(200.f, 447.f);
+
+				window.draw(yAxis);
+				window.draw(xAxis);
+
+				window.display();
+
+				// let it play until it is finished
+				sf::Time audioDuration = stream.getBuffer().getDuration();
+				if (clock.getElapsedTime() == audioDuration)
+				{
+					stream.stop();
+				}
 			}
 
-			for (int i = 0; i < noteLocationCount; i++)
-			{
-				window.draw(rectangles[i]);
-			}
 
-			// draw the axes
-			sf::RectangleShape yAxis(sf::Vector2f(5.f, 500.f));
-			yAxis.setFillColor(sf::Color::Black);
-			yAxis.setPosition(195.f, 200.f);
-
-			sf::RectangleShape xAxis(sf::Vector2f(800.f, 5.f));
-			xAxis.setFillColor(sf::Color::Black);
-			xAxis.setPosition(200.f, 447.f);
-
-			window.draw(yAxis);
-			window.draw(xAxis);
-
-			window.display();
-
-			sf::Time audioDuration = stream.getBuffer().getDuration();
-
-			// let it play until it is finished
-			if (clock.getElapsedTime() == audioDuration)
-			{
-				stream.stop();
-			}
 
 
 		}
 		
+	}
+
+private:
+
+	string processKeyPress()
+	{
+
 	}
 
 	vector<sf::RectangleShape> getRectanglesFromData(vector<double> beatDifferences)
@@ -151,6 +177,9 @@ public:
 
 		return rectangles;
 	}
+
+	bool displayStartScreen;
+	
 
 };
 

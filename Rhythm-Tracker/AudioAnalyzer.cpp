@@ -116,8 +116,7 @@ public:
 		//------------------(1) find first note-------------------------------------------
 
 		int currentSampleIndex = 0;
-		// the for loop will break before the count reaches sampleCount - trailingEmptySamples 
-		// (i.e. the last non zero sample)
+		// the for loop will break before the count reaches sampleCount
 		for (int i = 0; i < AudioInfo::sampleCount; i++)
 		{
 			if (abs(samples[i]) > newNoteSampleThreshold)
@@ -127,6 +126,10 @@ public:
 				currentSampleIndex = i;
 				AudioInfo::noteLocations.push_back(currentSampleIndex);
 				noteLocationSampleValues.push_back(samples[currentSampleIndex]);
+
+				// set this value for playing the audio in WindowMaker.cpp
+				AudioInfo::samplesBeforeFirstNote = currentSampleIndex;
+
 				break;
 			}
 		}

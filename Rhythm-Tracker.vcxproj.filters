@@ -57,6 +57,9 @@
     <ClInclude Include="Rhythm-Tracker\Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Rhythm-Tracker\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Rhythm-Tracker\AudioAnalyzer.cpp">

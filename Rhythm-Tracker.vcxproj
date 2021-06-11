@@ -160,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Rhythm-Tracker\AudioInfo.h" />
+    <ClInclude Include="Rhythm-Tracker\common.h" />
     <ClInclude Include="Rhythm-Tracker\Settings.h" />
   </ItemGroup>
   <ItemGroup>
