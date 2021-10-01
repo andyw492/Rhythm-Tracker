@@ -29,38 +29,50 @@ int AudioInfo::samplesBeforeFirstNote = -1;
 
 int main()
 {
-	std::vector<std::string> availableDevices = sf::SoundRecorder::getAvailableDevices();
+	bool record = false;
 
-	for (int i = 0; i < availableDevices.size(); i++)
+	sf::SoundBuffer buffer;
+
+	if (record)
 	{
-		cout << "available devices: " << availableDevices[i] << endl;
+		std::vector<std::string> availableDevices = sf::SoundRecorder::getAvailableDevices();
+
+		for (int i = 0; i < availableDevices.size(); i++)
+		{
+			cout << "available devices: " << availableDevices[i] << endl;
+		}
+
+		cout << "which device?" << endl;
+		int deviceNum = 0; cin >> deviceNum;
+
+		// choose a device
+		std::string inputDevice = availableDevices[deviceNum];
+
+		// create the recorder
+		sf::SoundBufferRecorder recorder;
+
+		// set the device
+		if (!recorder.setDevice(inputDevice))
+		{
+			cout << "couldn't set device" << endl;
+		}
+
+		// start the capture
+		recorder.start();
+
+		// wait...
+		string s; cin >> s;
+
+		// stop the capture
+		recorder.stop();
+
+		// retrieve the buffer that contains the captured audio data
+		const sf::SoundBuffer& receivedBuffer = recorder.getBuffer();
+
+		buffer = sf::SoundBuffer(receivedBuffer);
 	}
 
-	// choose a device
-	std::string inputDevice = availableDevices[0];
 
-	// create the recorder
-	sf::SoundBufferRecorder recorder;
-
-	// set the device
-	if (!recorder.setDevice(inputDevice))
-	{
-		cout << "couldn't set device" << endl;
-	}
-
-	// start the capture
-	recorder.start();
-
-	// wait...
-	string s; cin >> s;
-
-	// stop the capture
-	recorder.stop();
-
-	// retrieve the buffer that contains the captured audio data
-	const sf::SoundBuffer& receivedBuffer = recorder.getBuffer();
-
-	sf::SoundBuffer buffer(receivedBuffer);
 
 	string searchSetting = "Max Rectangle Height";
 
@@ -102,7 +114,7 @@ int main()
 
 	string fileName;
 	cout << "Enter the file name: ";
-	fileName = "Recording (150).wav"; cout << endl;
+	fileName = "Recording (227).wav"; cout << endl;
 
 	cout << "Enter the BPM: ";
 	AudioInfo::bpm = 120; cout << endl;
@@ -112,11 +124,13 @@ int main()
 	shortestNoteString = "eighth"; cout << endl;
 
 	// empty string for fileName to specify that we are recording live
-	AudioAnalyzer analyzer("");
-	analyzer.setBuffer(buffer);
+	AudioAnalyzer analyzer(fileName);
+	if (record) { analyzer.setBuffer(buffer); }
 	analyzer.setAudioInfo(AudioInfo::bpm, shortestNoteString);
 	analyzer.setSampleInfo();
 	analyzer.findNoteLocations();
+
+	if (!record) { buffer = analyzer.getBuffer(fileName); }
 
 	//// get the buffer for the audio to be played back to the user later
 	//sf::SoundBuffer buffer(analyzer.getBuffer(fileName));
@@ -141,7 +155,7 @@ int main()
 	}
 
 	// for some reason, a change needs to be made somewhere in main.cpp for each new compile
-	string compileChange = "q77778777778777777777777777777777788877887777777777";
+	string compileChange = "q7777877777877777777777777777777777777777777777777777788877887777777777";
 
 	cout << sf::SoundBufferRecorder::isAvailable() << endl;
 

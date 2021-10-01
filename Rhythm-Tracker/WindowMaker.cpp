@@ -118,6 +118,8 @@ public:
 		string enteredText = "";
 		bool newText = false;
 
+		//--------------------MAIN WINDOW LOOP--------------------------
+
 		while (window.isOpen())
 		{
 			sf::Event event;

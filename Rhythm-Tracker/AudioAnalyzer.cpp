@@ -1,5 +1,6 @@
 #include <SFML/Audio.hpp>
 #include <iostream>
+#include <queue>
 
 #include "AudioInfo.h"
 
@@ -91,25 +92,7 @@ public:
 		2) wait 1/2 of the length between the start of the last found note and the expected start of the next note
 		(based on bpm and shortest note length)
 
-		3) look for the next note:
-
-			3a) record the next 1000 samples and find the average of those samples' absolute values
-			(1000 samples = approx. 0.01 seconds = approx. 1/50 of a quarter note at 120 bpm)
-
-			3b) if the current average is >5x the previous average AND is >100
-					mark the previous average value as a previousAverage
-					mark the current average value location (the first of the 1000 samples)
-					as an averageSpikeLocation and go to (3c)
-
-					record the next two 1000 sample averages
-					if both of those averages are each >50x the previousAverage value
-						mark the averageSpikeLocation as a newNoteLocation
-					else
-						go to (3a)
-				else
-					go to (3a)
-
-
+		3) look for the next note
 
 		4) repeat from (2) until the end of the non zero samples has been reached
 		*/
@@ -122,7 +105,7 @@ public:
 		//------------------(1) find first note-------------------------------------------
 
 		int currentSampleIndex = 0;
-		// the for loop will break before the count reaches sampleCount
+		// the for loop should break before the count reaches sampleCount
 		for (int i = 0; i < AudioInfo::sampleCount; i++)
 		{
 			if (abs(samples[i]) > newNoteSampleThreshold)
@@ -141,9 +124,11 @@ public:
 		}
 
 		bool endOfSamplesReached = false;
+		int sampleBatchSize = 500;
 
-		while (!endOfSamplesReached)
+		while (currentSampleIndex + sampleBatchSize < AudioInfo::sampleCount)
 		{
+			cout << "currentSampleIndex: " << currentSampleIndex << endl;
 
 			//----------------(2) skip distance to next note------------------------------
 
@@ -159,82 +144,96 @@ public:
 			//----------------(3) look for the next note------------------------------------
 
 			bool nextNoteCandidateFound = false;
+			queue<int> rejections;
+			int rejectionsSize = 5;
+			int rejectionFactor = 20;
+			int minRejections = INT_MAX;
 
 			int firstIncreasingAverageLocation = 0;
 			int increasingAverageCount = 0;
-			int increasingAverageCountThreshold = 3;
+			int increasingAverageCountThreshold = 6;
 
-			double previousAverage = 0;
+			double previousAverage = INT_MAX;
 			double currentAverage = 0;
-			double prev_avg_abs_sampleValue = INT_MAX; //set to INT_MAX so that the first 1000 samples
-													   //isnt automatically interpreted as an increase
+			double prev_avg_abs_sampleValue = INT_MAX; 
 
-			// 3a) record the next 1000 samples and find the maximum sample value
-			// (1000 samples = approx. 0.01 seconds = 1 / 50 of a quarter note at 120 bpm)
-
-
-			// 3b) find the sample at location x, where x is the location of the start of
-			//	   three consecutive increases of sample averages by a factor of 1.5
-			//
-			//      if the current average is >5x the previous average
-			// 	    mark the previous average value as a previousAverage
-			//		mark the current average value location(the first of the 1000 samples)
-			//		as a firstIncreasingAverageLocation and go to(3c)
-			//
-			//		record the next two 1000 sample averages
-			//		if both of those averages are each >50x the previousAverage value AND
-			//		the sample value at firstIncreasingAverageLocation is >100
-			//			mark the firstIncreasingAverageLocation as a newNoteLocation
-			//		else
-			//			go to (3a)
-			//	else
-			//		go to(3a)
-
-
-			// if there are less than 1000 non zero samples remaining (i.e. the next average cant be computed)
-			// then the end of the samples has been reached
-			if (currentSampleIndex >= AudioInfo::sampleCount - 1000)
+			if (false)
 			{
-				endOfSamplesReached = true;
-			}
+				// if there are less than 1000 non zero samples remaining (i.e. the next average cant be computed)
+				// then the end of the samples has been reached
+				if (currentSampleIndex >= AudioInfo::sampleCount - 1000)
+				{
+					endOfSamplesReached = true;
+				}
 
-			int sumOfNextThousandSamples = 0;
-			for (int i = currentSampleIndex; i < (currentSampleIndex + 1000); i++)
-			{
-				sumOfNextThousandSamples += abs(samples[i]);
-			}
-			previousAverage = sumOfNextThousandSamples / 1000.0;
-			currentSampleIndex += 1000;
-
-			// a new value is set when the current average >1.5x the previous average and
-			// there is no value for firstIncreasingAverageLocation
-
-			// exit the while loop of the next note candidate was found or the end of the samples was reached
-			while (!nextNoteCandidateFound && !endOfSamplesReached)
-			{
-				// (3a)
 				int sumOfNextThousandSamples = 0;
 				for (int i = currentSampleIndex; i < (currentSampleIndex + 1000); i++)
 				{
 					sumOfNextThousandSamples += abs(samples[i]);
 				}
-				currentAverage = sumOfNextThousandSamples / 1000.0;
+				previousAverage = sumOfNextThousandSamples / 1000.0;
 				currentSampleIndex += 1000;
 
-				// (3b)
-				if (currentAverage > (previousAverage * 1.5))
+				// a new value is set when the current average >1.5x the previous average and
+				// there is no value for firstIncreasingAverageLocation
+			}
+
+
+			//-------------LOOP TO FIND NEXT NOTE------------------
+
+			while (!nextNoteCandidateFound)
+			{
+				// break from the while loop if the next average cant be computed
+				if (currentSampleIndex + sampleBatchSize >= AudioInfo::sampleCount) { break; }
+
+				// record the next 1000 samples and find the maximum sample value
+				// (1000 samples = approx. 0.01 seconds = 1 / 50 of a quarter note at 120 bpm)
+				int sampleBatchSum = 0;
+				for (int i = currentSampleIndex; i < (currentSampleIndex + sampleBatchSize); i++)
+				{
+					sampleBatchSum += abs(samples[i]);
+				}
+				currentAverage = sampleBatchSum / (double)sampleBatchSize;
+				currentSampleIndex += sampleBatchSize;
+
+				// if the currentAverage < 100, then disregard this average and take the next one
+				// however, a sample can become a note candidate if 
+				// it is [rejectionFactor]x the minimum of the past [rejectionSize] rejections
+				if (currentAverage < 100)
+				{
+					//cout << "rejected currentAverage: " << currentAverage << endl;
+					if (rejections.size() >= rejectionsSize) { rejections.pop(); }
+					rejections.push(currentAverage);
+					minRejections = findMinFromQueue(rejections);
+					
+					continue;
+				}
+
+				if (minRejections != INT_MAX && currentAverage > minRejections * rejectionFactor) { nextNoteCandidateFound = true; }
+
+				//cout << "minRejections * rejectionFactor: " << (minRejections * rejectionFactor) << endl;
+				//cout << "current average [" << currentSampleIndex - sampleBatchSize << "-" << currentSampleIndex << "]: " << currentAverage << endl;
+
+				// we want three consecutive sample averages that are 1.5x an average taken before
+				if (currentAverage > (previousAverage * 1.5) || nextNoteCandidateFound)
 				{
 					increasingAverageCount++;
 
 					if (!firstIncreasingAverageLocation)
 					{
-						firstIncreasingAverageLocation = currentSampleIndex - 1000;
+						firstIncreasingAverageLocation = currentSampleIndex - sampleBatchSize;
 						//currentSampleIndex - 1000 is the location of the first sample in the last group of 1000 samples
 					}
 
-					if (increasingAverageCount == increasingAverageCountThreshold)
-					{
+					if (increasingAverageCount == increasingAverageCountThreshold) {
 						nextNoteCandidateFound = true;
+					}
+
+					if(nextNoteCandidateFound)
+					{
+						//cout << "previous average: " << previousAverage << endl;
+						//cout << "next note candidate: " << firstIncreasingAverageLocation << endl << endl;
+						//string s; cin >> s;
 
 						if (currentAverage > newNoteSampleThreshold)
 						{
@@ -244,29 +243,23 @@ public:
 					}
 
 				}
-				else // reset the increasing average count
+				else // currentAverage was not high enough, so reset the increasing average count
 				{
 					firstIncreasingAverageLocation = 0;
 					increasingAverageCount = 0;
-				}
-
-				//if there are less than 1000 non zero samples remaining
-				//i.e. the next average cant be computed
-				if (currentSampleIndex + 1000 >= AudioInfo::sampleCount)
-				{
-					endOfSamplesReached = true;
-				}
-
-				if (increasingAverageCount == 0)
-				{
-
 					previousAverage = currentAverage;
 				}
+
 
 
 			}
 
 			//4) repeat from (2) until the end of the non zero samples has been reached
+		}
+
+		for (int i = 0; i < AudioInfo::noteLocations.size(); i++)
+		{
+			//cout << "noteLocations " << i << ": " << AudioInfo::noteLocations[i] << endl;
 		}
 
 	}
@@ -291,6 +284,31 @@ private:
 			//load samples from buffer into samples[]
 			samples[i] = tempSamples[i];
 		}
+	}
+
+	int findMinFromQueue(queue<int> q)
+	{
+		queue<int> tempQueue;
+		int min = INT_MAX;
+		int popped = -1;
+
+		if (q.size() == 0) { return INT_MAX; }
+
+		for (int i = 0; i < q.size(); i++)
+		{
+			popped = q.front();
+			q.pop();
+			if (popped < min) { min = popped; }
+
+			tempQueue.push(popped);
+		}
+
+		for (int i = 0; i < tempQueue.size(); i++)
+		{
+
+		}
+
+		return min;
 	}
 
 };
