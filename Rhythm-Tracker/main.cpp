@@ -3,11 +3,10 @@
 #include <iostream>
 
 #include "AudioAnalyzer.cpp"
-#include "AudioStream.cpp"
 #include "RhythmAccuracy.cpp"
 #include "WindowMaker.cpp"
 #include "AudioInfo.h"
-#include "Settings.h"
+//#include "Settings.h"
 
 using namespace std;
 
@@ -30,9 +29,77 @@ int AudioInfo::samplesBeforeFirstNote = -1;
 
 int main()
 {
+	std::vector<std::string> availableDevices = sf::SoundRecorder::getAvailableDevices();
+
+	for (int i = 0; i < availableDevices.size(); i++)
+	{
+		cout << "available devices: " << availableDevices[i] << endl;
+	}
+
+	// choose a device
+	std::string inputDevice = availableDevices[0];
+
+	// create the recorder
+	sf::SoundBufferRecorder recorder;
+
+	// set the device
+	if (!recorder.setDevice(inputDevice))
+	{
+		cout << "couldn't set device" << endl;
+	}
+
+	// start the capture
+	recorder.start();
+
+	// wait...
+	string s; cin >> s;
+
+	// stop the capture
+	recorder.stop();
+
+	// retrieve the buffer that contains the captured audio data
+	const sf::SoundBuffer& receivedBuffer = recorder.getBuffer();
+
+	sf::SoundBuffer buffer(receivedBuffer);
+
+	string searchSetting = "Max Rectangle Height";
+
+	fstream settingsFile("Rhythm-Tracker/Settings.txt");
+/*
+	cout << settingsFile.is_open() << endl;
+
+	bool foundString = false;
+	int value = -1;
+
+	while (!foundString && !settingsFile.eof())
+	{
+		string fileLine;
+		getline(settingsFile, fileLine);
+		cout << fileLine << endl;
+
+		value++;
+		if (value == 10)
+		{
+			while (true) {}
+		}
+
+		if (fileLine.find(searchSetting) != string::npos)
+		{
+			printf("found the search setting\n");
+			value = stoi(fileLine.substr(fileLine.find(":") + 1, fileLine.find("\n")));
+			foundString = true;
+		}
+	}
+
+	if (!foundString)
+	{
+		printf("ERROR: setting not found");
+	}
+
+	settingsFile.close();*/
+
 	cout << "Please make sure the audio file is a .wav file" << endl;
 
-	
 	string fileName;
 	cout << "Enter the file name: ";
 	fileName = "Recording (150).wav"; cout << endl;
@@ -44,15 +111,15 @@ int main()
 	cout << "Enter the shortest note length (quarter/eighth/sixteenth): ";
 	shortestNoteString = "eighth"; cout << endl;
 
-	AudioAnalyzer analyzer(fileName);
+	// empty string for fileName to specify that we are recording live
+	AudioAnalyzer analyzer("");
+	analyzer.setBuffer(buffer);
 	analyzer.setAudioInfo(AudioInfo::bpm, shortestNoteString);
 	analyzer.setSampleInfo();
 	analyzer.findNoteLocations();
 
-
-	// get the buffer for the audio to be played back to the user later
-	sf::SoundBuffer buffer(analyzer.getBuffer(fileName));
-
+	//// get the buffer for the audio to be played back to the user later
+	//sf::SoundBuffer buffer(analyzer.getBuffer(fileName));
 	
 	RhythmAccuracy rAcc;
 	vector<double> beatDifferences(rAcc.findBeatDifferences());
@@ -73,15 +140,13 @@ int main()
 
 	}
 
-	// initialize our custom stream
-	AudioStream stream;
-	stream.load(buffer);
-
 	// for some reason, a change needs to be made somewhere in main.cpp for each new compile
-	string compileChange = "q7777877777777777777777777777777777777777777777777777777777777777777778777777777777";
+	string compileChange = "q77778777778777777777777777777777788877887777777777";
+
+	cout << sf::SoundBufferRecorder::isAvailable() << endl;
 
 	WindowMaker windowMaker;
-	windowMaker.display(beatDifferences, stream);
+	windowMaker.display(beatDifferences, buffer);
 	
 
 	return 0;

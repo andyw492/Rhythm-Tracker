@@ -24,6 +24,12 @@ public:
 		delete[] samples;
 	}
 
+	// set buffer if recording live (not from file)
+	void setBuffer(sf::SoundBuffer inputBuffer)
+	{
+		buffer = inputBuffer;
+	}
+
 	void setAudioInfo(int inputtedBpm, string inputtedShortestNote)
 	{
 		AudioInfo::bpm = inputtedBpm;
@@ -36,7 +42,7 @@ public:
 	void setSampleInfo()
 	{
 		// load an audio buffer from a sound file and get the sample count, sample rate, and channel count
-		buffer.loadFromFile(fileName);
+		if (fileName.length() > 0) { buffer.loadFromFile(fileName); }
 		AudioInfo::sampleCount = buffer.getSampleCount();
 		AudioInfo::sampleRate = buffer.getSampleRate();
 		AudioInfo::channelCount = buffer.getChannelCount();
@@ -268,7 +274,6 @@ public:
 private:
 
 	short* samples;
-
 
 	sf::SoundBuffer buffer;
 

@@ -150,6 +150,7 @@
     <Text Include="printSamples.txt" />
     <Text Include="pseudocode.txt" />
     <Text Include="Rhythm-Tracker\codebackup.txt" />
+    <Text Include="Rhythm-Tracker\Settings.txt" />
     <Text Include="Rhythm-Tracker\typedefs.txt" />
     <Text Include="typedefs.txt" />
   </ItemGroup>
@@ -161,11 +162,11 @@
   <ItemGroup>
     <ClInclude Include="Rhythm-Tracker\AudioInfo.h" />
     <ClInclude Include="Rhythm-Tracker\common.h" />
-    <ClInclude Include="Rhythm-Tracker\Settings.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Rhythm-Tracker\AudioAnalyzer.cpp" />
     <ClCompile Include="Rhythm-Tracker\AudioStream.cpp" />
+    <ClCompile Include="Rhythm-Tracker\common.cpp" />
     <ClCompile Include="Rhythm-Tracker\main.cpp" />
     <ClCompile Include="Rhythm-Tracker\RhythmAccuracy.cpp" />
     <ClCompile Include="Rhythm-Tracker\WindowMaker.cpp" />

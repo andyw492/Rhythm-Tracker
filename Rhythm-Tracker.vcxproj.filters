@@ -38,6 +38,7 @@
     <Text Include="Rhythm-Tracker\codebackup.txt" />
     <Text Include="Rhythm-Tracker\typedefs.txt" />
     <Text Include="Output-Build.txt" />
+    <Text Include="Rhythm-Tracker\Settings.txt" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="Rhythm-Tracker\Recording (82).wav">
@@ -52,9 +53,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Rhythm-Tracker\AudioInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Rhythm-Tracker\Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Rhythm-Tracker\common.h">
@@ -75,6 +73,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Rhythm-Tracker\WindowMaker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rhythm-Tracker\common.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
