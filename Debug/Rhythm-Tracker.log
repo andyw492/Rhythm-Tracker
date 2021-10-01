@@ -1,13 +1,4 @@
-﻿  AudioAnalyzer.cpp
-c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\audioinfo.h(22): warning C4091: 'static ': ignored on left of 'AudioInfo' when no variable is declared
-c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\audioanalyzer.cpp(140): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\audioanalyzer.cpp(205): warning C4018: '>=': signed/unsigned mismatch
-c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\audioanalyzer.cpp(206): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
-c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\audioanalyzer.cpp(260): warning C4018: '<': signed/unsigned mismatch
-c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\audioanalyzer.cpp(279): warning C4244: 'initializing': conversion from '__int64' to 'unsigned int', possible loss of data
-c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\audioanalyzer.cpp(297): warning C4018: '<': signed/unsigned mismatch
-c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\audioanalyzer.cpp(306): warning C4018: '<': signed/unsigned mismatch
-  main.cpp
+﻿  main.cpp
 c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\audioinfo.h(22): warning C4091: 'static ': ignored on left of 'AudioInfo' when no variable is declared
 c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\audioanalyzer.cpp(140): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
 c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\audioanalyzer.cpp(205): warning C4018: '>=': signed/unsigned mismatch
@@ -27,6 +18,5 @@ c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\windowmaker.cpp(19
 c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\windowmaker.cpp(259): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'double'
 c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\windowmaker.cpp(268): warning C4018: '<': signed/unsigned mismatch
 c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\main.cpp(40): warning C4018: '<': signed/unsigned mismatch
-c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\main.cpp(142): warning C4018: '<': signed/unsigned mismatch
-  Generating Code...
+c:\users\andy wang\source\repos\rhythm-tracker\rhythm-tracker\main.cpp(148): warning C4018: '<': signed/unsigned mismatch
   Rhythm-Tracker.vcxproj -> C:\Users\Andy Wang\source\repos\Rhythm-Tracker\Debug\Rhythm-Tracker.exe
