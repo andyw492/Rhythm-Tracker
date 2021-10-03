@@ -6,6 +6,7 @@
 #include <vector>
 #include <cassert>
 #include <map>
+#include <algorithm>
 
 #include "common.h"
 #include "AudioInfo.h"
@@ -19,12 +20,24 @@ public:
 
 	Button() {}
 
-	Button(float posX, float posY)
+	Button(float posX, float posY, string s, sf::Font* font)
 	{
-		rectangle = sf::RectangleShape(sf::Vector2f(50, 50));
+		int sizeX = 100;
+		int sizeY = 50;
+
+		rectangle = sf::RectangleShape(sf::Vector2f(sizeX, sizeY));
 		rectangle.setPosition(sf::Vector2f(posX, posY));
 		rectangle.setOutlineColor(sf::Color::Black);
 		rectangle.setOutlineThickness(-1.f);
+
+		text.setFont(*font);
+		text.setString(s);
+
+		// position X formula: (posX + (sizeX / n)), where n = s.length() - 1
+		// (placeholder formula for centering text on button)
+		text.setPosition(posX + (sizeX / (s.length() - 1)), posY + (sizeY / 5));
+		text.setFillColor(sf::Color::Black);
+		text.setCharacterSize(25);
 		active = false;
 	}
 
@@ -33,20 +46,38 @@ public:
 		return rectangle;
 	}
 
+	sf::Text getText()
+	{
+		return text;
+	}
+
+	const sf::Font* getFont()
+	{
+		return text.getFont();
+	}
+
 	bool isActive()
 	{
 		return active;
 	}
 
-	bool setActiveStatus(bool active)
+	void setActive(bool active)
 	{
 		this->active = active;
 	}
+
+	//void draw(sf::RenderWindow& window)
+	//{
+	//	window.draw(rectangle);
+	//	window.draw(text);
+	//}
 
 private:
 
 	bool active;
 	sf::RectangleShape rectangle;
+	sf::Text text;
+	sf::Font font;
 };
 
 class WindowMaker
@@ -71,17 +102,17 @@ public:
 
 		vector<sf::RectangleShape> rectangles(getRectanglesFromData(beatDifferences));
 		
-		// initialize buttons
-		vector<Button> buttons;
-		buttons.push_back(Button(100, 100));
-		buttons.push_back(Button(100, 200));
-
 		// text font
 		sf::Font font;
-		if (!font.loadFromFile("arial.ttf"))
+		if (!font.loadFromFile("fontfile.ttf"))
 		{
 			cout << "error loading font" << endl;
 		}
+
+		// initialize buttons
+		vector<Button> buttons;
+		buttons.push_back(Button(1000, 800, "Restart", &font));
+		buttons.push_back(Button(1200, 800, "Exit", &font));
 
 		// initialize the clock
 		sf::Clock clock;
@@ -138,12 +169,46 @@ public:
 					}
 				}
 
+				if (event.type == sf::Event::MouseButtonPressed)
+				{
+					sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+					int buttonIndex = processMouseClick(mousePosition, buttons);
+
+					// restart
+					if (buttonIndex == 0)
+					{
+						stream.stop();
+						noteLocationCount = 0;
+						startedClock = false;
+					}
+					
+					// exit
+					if (buttonIndex == 1)
+					{
+						window.close();
+					}
+				}
+
 			}
 
 			//--------------------START SCREEN--------------------------
 			//if (displayStartScreen)
 			if(false)
 			{
+				vector<int> activeButtons = {};
+
+				for (int i = 0; i < buttons.size(); i++)
+				{
+					if (find(activeButtons.begin(), activeButtons.end(), i) != activeButtons.end())
+					{
+						buttons[i].setActive(true);
+					}
+					else
+					{
+						buttons[i].setActive(false);
+					}
+				}
+
 				if (enteredText.find("q") != string::npos)
 				{
 					displayStartScreen = false;
@@ -153,8 +218,7 @@ public:
 
 				for (int i = 0; i < buttons.size(); i++)
 				{
-					sf::RectangleShape button = buttons[i].getRectangle();
-					window.draw(button);
+					//buttons[i].draw(window);
 				}
 
 				sf::Text text;
@@ -173,6 +237,20 @@ public:
 			//--------------------MAIN SCREEN---------------------------
 			else
 			{
+				vector<int> activeButtons = {0, 1};
+
+				for (int i = 0; i < buttons.size(); i++)
+				{
+					if (find(activeButtons.begin(), activeButtons.end(), i) != activeButtons.end())
+					{
+						buttons[i].setActive(true);
+					}
+					else
+					{
+						buttons[i].setActive(false);
+					}
+				}
+
 				window.clear(sf::Color::White);
 
 				// start the clock and begin playing audio
@@ -219,6 +297,19 @@ public:
 				window.draw(yAxis);
 				window.draw(xAxis);
 
+				// draw the active buttons
+				for (int i = 0; i < buttons.size(); i++)
+				{
+					window.draw(buttons[i].getRectangle());
+
+					sf::Text text(buttons[i].getText());
+					//const sf::Font* font = buttons[i].getFont();
+					//sf::Font font2;
+					//font2.loadFromFile("arial.ttf");
+					//text.setFont(*font);
+					window.draw(buttons[i].getText());
+				}
+
 				window.display();
 
 				// let it play until it is finished
@@ -229,9 +320,6 @@ public:
 				}
 
 			}
-
-
-
 
 		}
 		
@@ -245,7 +333,30 @@ private:
 	}
 
 	// check if the mouse click happened on any active buttons
-	int processMouseClick()
+	// returns the index of the button pressed, -1 if no button
+	int processMouseClick(sf::Vector2i mousePosition, vector<Button> buttons)
+	{
+		for (int i = 0; i < buttons.size(); i++)
+		{
+			if (!buttons[i].isActive()) { continue; }
+
+			sf::RectangleShape rectangle = buttons[i].getRectangle();
+
+			bool clickedButton = 
+			(
+				(mousePosition.x > rectangle.getPosition().x && 
+					mousePosition.x < rectangle.getPosition().x + rectangle.getSize().x) &&
+				(mousePosition.y > rectangle.getPosition().y &&
+					mousePosition.y < rectangle.getPosition().y + rectangle.getSize().y)
+			);
+
+			if (clickedButton) { return i; }
+		}
+
+		return -1;
+	}
+
+	void playMetronome(int bpm)
 	{
 
 	}

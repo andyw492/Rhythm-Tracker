@@ -1,6 +1,7 @@
 #include <SFML/Audio.hpp>
 #include <vector>
 #include <iostream>
+#include <thread>
 
 #include "AudioAnalyzer.cpp"
 #include "RhythmAccuracy.cpp"
@@ -27,8 +28,72 @@ int AudioInfo::samplesBeforeFirstNote = -1;
 // add settings
 // add try catch blocks for edge cases/exception handling
 
+void playMetronome(AudioStream &stream, int bpm)
+{
+	stream.play();
+}
+
+void stopMetronome(AudioStream &stream)
+{
+	stream.stop();
+}
+
 int main()
 {
+	bool testing = false;
+	//------------------TESTING------------------
+	if (testing)
+	{
+		sf::Clock clock;
+		sf::Clock clock2;
+
+		sf::SoundBuffer test_mainBuffer;
+		test_mainBuffer.loadFromFile("Recording (228).wav");
+
+		AudioStream test_mainStream;
+		test_mainStream.load(test_mainBuffer);
+		test_mainStream.play();
+
+		sf::SoundBuffer test_buffer;
+		test_buffer.loadFromFile("metronome.ogg");
+
+		AudioStream test_stream;
+		test_stream.load(test_buffer);
+		playMetronome(test_stream, 120);
+
+		while (test_stream.getStatus() != sf::SoundSource::Status::Stopped)
+		{
+			sf::Time audioDuration2 = test_stream.getBuffer().getDuration();
+			if (clock2.getElapsedTime() == audioDuration2)
+			{
+				stopMetronome(test_stream);
+			}
+		}
+
+		while (test_mainStream.getStatus() != sf::SoundSource::Status::Stopped)
+		{
+			sf::Time audioDuration = test_mainStream.getBuffer().getDuration();
+			if (clock.getElapsedTime() == audioDuration)
+			{
+				test_mainStream.stop();
+			}
+		}
+
+
+		return 0;
+	
+	}
+
+	bool testing2 = true;
+	if (testing2)
+	{
+		// (e.g. for 10/2/2021 7:30pm -> d20211002t1930)
+		return 0;
+	}
+	//------------------TESTING------------------
+
+
+
 	bool record = false;
 
 	sf::SoundBuffer buffer;
@@ -114,7 +179,7 @@ int main()
 
 	string fileName;
 	cout << "Enter the file name: ";
-	fileName = "Recording (227).wav"; cout << endl;
+	fileName = "Recording (228).wav"; cout << endl;
 
 	cout << "Enter the BPM: ";
 	AudioInfo::bpm = 120; cout << endl;
@@ -124,13 +189,19 @@ int main()
 	shortestNoteString = "eighth"; cout << endl;
 
 	// empty string for fileName to specify that we are recording live
+	if (record) { fileName = ""; }
 	AudioAnalyzer analyzer(fileName);
-	if (record) { analyzer.setBuffer(buffer); }
+	if (record)
+	{
+		analyzer.setBuffer(buffer);
+	}
+	else
+	{
+		buffer = analyzer.getBuffer(fileName);
+	}
 	analyzer.setAudioInfo(AudioInfo::bpm, shortestNoteString);
 	analyzer.setSampleInfo();
 	analyzer.findNoteLocations();
-
-	if (!record) { buffer = analyzer.getBuffer(fileName); }
 
 	//// get the buffer for the audio to be played back to the user later
 	//sf::SoundBuffer buffer(analyzer.getBuffer(fileName));
@@ -155,7 +226,7 @@ int main()
 	}
 
 	// for some reason, a change needs to be made somewhere in main.cpp for each new compile
-	string compileChange = "q7777877777877777777777777777777777777777777777777777788877887777777777";
+	string compileChange = "77777777777777777777";
 
 	cout << sf::SoundBufferRecorder::isAvailable() << endl;
 
