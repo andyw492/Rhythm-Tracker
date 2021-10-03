@@ -10,7 +10,10 @@
 
 #include "common.h"
 #include "AudioInfo.h"
+#include "AudioAnalyzer.cpp"
+#include "RhythmAccuracy.cpp"
 #include "AudioStream.cpp"
+#include "FileManager.cpp"
 
 using namespace std;
 
@@ -66,12 +69,6 @@ public:
 		this->active = active;
 	}
 
-	//void draw(sf::RenderWindow& window)
-	//{
-	//	window.draw(rectangle);
-	//	window.draw(text);
-	//}
-
 private:
 
 	bool active;
@@ -84,11 +81,7 @@ class WindowMaker
 {
 public:
 
-	WindowMaker(AudioInfo info)
-	{
-		audioInfo = AudioInfo(info);
-		displayStartScreen = true;
-	}
+	WindowMaker() {}
 
 	int checkCount = 0;
 	void check()
@@ -97,11 +90,17 @@ public:
 		checkCount++;
 	}
 
-	void display(vector<double> beatDifferences, sf::SoundBuffer buffer)
+	void createWindow()
+	{
+		display();
+	}
+
+	void display()
 	{
 		sf::RenderWindow window(sf::VideoMode(1600, 900), "Rhythm Tracker");
 
-		vector<sf::RectangleShape> rectangles(getRectanglesFromData(beatDifferences));
+		// rectangles to be drawn
+		vector<sf::RectangleShape> rectangles;
 		
 		// text font
 		sf::Font font;
@@ -115,41 +114,26 @@ public:
 		buttons.push_back(Button(1000, 800, "Restart", &font));
 		buttons.push_back(Button(1200, 800, "Exit", &font));
 
-		// initialize the clock
+		// initialize the clock (restart after end of start screen)
 		sf::Clock clock;
 		bool startedClock = false;
 
-		// initialize our custom stream
+		// initialize the audio stream which plays the audio
 		AudioStream stream;
-		stream.load(buffer);
 
-		// skip all of the audio before the first note in the audio stream
-		sf::Time secondsBeforeFirstNote = sf::seconds(audioInfo.getSamplesBeforeFirstNote() / float(audioInfo.getSampleRate() * audioInfo.getChannelCount()));
-		stream.setPlayingOffset(secondsBeforeFirstNote);
-		cout << "playing offset: " << secondsBeforeFirstNote.asSeconds() << endl;
-		
-		// vector of the note locations converted to seconds
-		// used to display each rectangle whenever its note is played
-		vector<int> noteLocations = audioInfo.getNoteLocations();
 		vector<double> noteLocations_seconds;
-		cout << "notelocations size is " << noteLocations.size() << endl;
-		for (int i = 0; i < noteLocations.size(); i++)
-		{
-			double currentNoteLocation_seconds = (noteLocations[i] / double(audioInfo.getSampleRate() * audioInfo.getChannelCount()));
-
-			// shift the real note locations left so that the audio before the first note can be skipped
-			// (the note locations need to be modified because they are used to determine when to display each rectangle)
-			currentNoteLocation_seconds -= double(secondsBeforeFirstNote.asSeconds());
-
-			noteLocations_seconds.push_back(currentNoteLocation_seconds);
-		}
-
-		
 
 		int noteLocationCount = 0;
-
 		string enteredText = "";
 		bool newText = false;
+
+		//string fileName = "Recording (228).wav";
+		string fileName = "";
+		int bpm = 120;
+		string shortestNoteString = "eighth";
+
+		bool displayStartScreen = true;
+		bool displayMainScreen = false;
 
 		//--------------------MAIN WINDOW LOOP--------------------------
 
@@ -194,8 +178,7 @@ public:
 			}
 
 			//--------------------START SCREEN--------------------------
-			//if (displayStartScreen)
-			if(false)
+			if (displayStartScreen)
 			{
 				vector<int> activeButtons = {};
 
@@ -230,14 +213,40 @@ public:
 				text.setString(enteredText);
 
 				window.draw(text);
-				
-
-
 
 				window.display();				
 			}
+			//--------------------POST-START SCREEN--------------------------
+			else if (!displayMainScreen)
+			{
+				loadAudioInfo(fileName, bpm, shortestNoteString);
+				loadAudioAnalysis();
+
+				rectangles = getRectanglesFromData();
+
+				stream.load(audioInfo.getBuffer());
+
+				// skip all of the audio before the first note in the audio stream
+				sf::Time secondsBeforeFirstNote = sf::seconds(audioInfo.getSamplesBeforeFirstNote() / float(audioInfo.getSampleRate() * audioInfo.getChannelCount()));
+				stream.setPlayingOffset(secondsBeforeFirstNote);
+
+				// vector of the note locations converted to seconds
+				// used to display each rectangle whenever its note is played
+				vector<int> noteLocations = audioInfo.getNoteLocations();
+				for (int i = 0; i < noteLocations.size(); i++)
+				{
+					double currentNoteLocation_seconds = (noteLocations[i] / double(audioInfo.getSampleRate() * audioInfo.getChannelCount()));
+
+					// shift the real note locations left so that the audio before the first note can be skipped
+					// (the note locations need to be modified because they are used to determine when to display each rectangle)
+					currentNoteLocation_seconds -= double(secondsBeforeFirstNote.asSeconds());
+					noteLocations_seconds.push_back(currentNoteLocation_seconds);
+				}
+
+				displayMainScreen = true;
+			}
 			//--------------------MAIN SCREEN---------------------------
-			else
+			else if(displayMainScreen)
 			{
 				vector<int> activeButtons = {0, 1};
 
@@ -262,14 +271,6 @@ public:
 					stream.play();
 					startedClock = true;
 				}
-
-				//cout << "audio duration " << stream.getBuffer().getDuration().asSeconds() << endl;
-				//cout << "notelocations_seconds size " << noteLocations_seconds.size() << endl;
-				//cout << "notelocations_seconds 0 " << noteLocations_seconds[0] << endl;
-				//cout << "notelocations_seconds 1 " << noteLocations_seconds[1] << endl;
-
-				//cout << "noteLocationCount < noteLocations_seconds.size() " << (noteLocationCount < noteLocations_seconds.size()) << endl;
-				//cout << "clock.getElapsedTime().asSeconds() >= noteLocations_seconds[noteLocationCount] " << (clock.getElapsedTime().asSeconds() >= noteLocations_seconds[noteLocationCount]) << endl;
 
 				// if it is time to draw the next rectangle (i.e. the elapsed time >= the next note location), 
 				// then draw the next rectangle
@@ -305,10 +306,6 @@ public:
 					window.draw(buttons[i].getRectangle());
 
 					sf::Text text(buttons[i].getText());
-					//const sf::Font* font = buttons[i].getFont();
-					//sf::Font font2;
-					//font2.loadFromFile("arial.ttf");
-					//text.setFont(*font);
 					window.draw(buttons[i].getText());
 				}
 
@@ -324,6 +321,9 @@ public:
 			}
 
 		}
+
+		// save recording of audio
+		//fileManager.saveAudioToFile(stream.getBuffer());
 		
 	}
 
@@ -332,6 +332,87 @@ private:
 	string processKeyPress()
 	{
 
+	}
+
+	void loadAudioInfo(string fileName, int bpm, string shortestNoteString)
+	{
+		bool record = (fileName.length() == 0);
+
+		audioInfo.setBpm(bpm);
+		if (shortestNoteString == "quarter") { audioInfo.setShortestNote(1.0); }
+		if (shortestNoteString == "eighth") { audioInfo.setShortestNote(0.5); }
+		if (shortestNoteString == "sixteenth") { audioInfo.setShortestNote(0.25); }
+
+		sf::SoundBuffer buffer;
+		if (record)
+		{
+			std::vector<std::string> availableDevices = sf::SoundRecorder::getAvailableDevices();
+
+			for (int i = 0; i < availableDevices.size(); i++)
+			{
+				cout << "available devices: " << availableDevices[i] << endl;
+			}
+
+			cout << "which device?" << endl;
+			int deviceNum = 0; cin >> deviceNum;
+
+			// choose a device
+			std::string inputDevice = availableDevices[deviceNum];
+
+			// create the recorder
+			sf::SoundBufferRecorder recorder;
+
+			// set the device
+			if (!recorder.setDevice(inputDevice))
+			{
+				cout << "couldn't set device" << endl;
+			}
+
+			// start the capture
+			recorder.start();
+
+			// wait...
+			string s; cin >> s;
+
+			// stop the capture
+			recorder.stop();
+
+			// retrieve the buffer that contains the captured audio data
+			const sf::SoundBuffer& receivedBuffer = recorder.getBuffer();
+			buffer = sf::SoundBuffer(receivedBuffer);
+		}
+
+		AudioAnalyzer analyzer;
+		if (record)
+		{
+			// audioInfo passed by reference
+			analyzer.setAudioInfo(audioInfo, buffer);
+		}
+		else
+		{
+			// audioInfo passed by reference
+			analyzer.setAudioInfo(audioInfo, fileName);
+		}
+	}
+
+	void loadAudioAnalysis()
+	{
+		rhythmAccuracy = RhythmAccuracy(audioInfo);
+
+		// debugging
+		vector<double> beatDifferences = rhythmAccuracy.getBeatDifferences();
+		for (int i = 0; i < beatDifferences.size(); i++)
+		{
+			if (beatDifferences[i] == INT_MAX)
+			{
+				cout << "there was no note at beat " << i << endl;
+			}
+			else
+			{
+				// beat differences converted from seconds to beats
+				cout << "beat " << i << " is " << beatDifferences[i] << " beats off" << endl;
+			}
+		}
 	}
 
 	// check if the mouse click happened on any active buttons
@@ -363,9 +444,10 @@ private:
 
 	}
 
-	vector<sf::RectangleShape> getRectanglesFromData(vector<double> beatDifferences)
+	vector<sf::RectangleShape> getRectanglesFromData()
 	{
 		vector<sf::RectangleShape> rectangles;
+		vector<double> beatDifferences = rhythmAccuracy.getBeatDifferences();
 
 		printf("calling max rectangle height\n");
 		double maxRectangleHeight = getMaxRectangleHeight();
@@ -420,8 +502,9 @@ private:
 		return rectangles;
 	}
 
+	FileManager fileManager;
 	AudioInfo audioInfo;
-	bool displayStartScreen;
+	RhythmAccuracy rhythmAccuracy;
 
 };
 

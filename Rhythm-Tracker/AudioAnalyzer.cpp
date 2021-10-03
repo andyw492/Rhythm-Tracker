@@ -6,41 +6,47 @@
 
 using namespace std;
 
+// takes in a partially filled in AudioInfo and an sf::SoundBuffer, and
+// uses those to fill in the rest of AudioInfo
 class AudioAnalyzer
 {
-
 
 public:
 
 	AudioAnalyzer() {}
 
-	AudioAnalyzer(string fileName)
-	{
-		this->fileName = fileName;
-
-	}
-
+	// rule of three...?
 	~AudioAnalyzer()
 	{
 		delete[] samples;
 	}
 
-	// set buffer if recording live (not from file)
-	void setBuffer(sf::SoundBuffer inputBuffer)
+	// if audio came from live recording
+	void setAudioInfo(AudioInfo& audioInfo, sf::SoundBuffer inputBuffer)
 	{
 		buffer = inputBuffer;
-	}
-
-	void setAudioInfo(AudioInfo& audioInfo)
-	{
+		audioInfo.setBuffer(buffer);
 		setSampleInfo(audioInfo);
 		findNoteLocations(audioInfo);
 	}
 
+	// if audio came from file
+	void setAudioInfo(AudioInfo& audioInfo, string fileName)
+	{
+		buffer.loadFromFile(fileName);
+		audioInfo.setBuffer(buffer);
+		setSampleInfo(audioInfo);
+		findNoteLocations(audioInfo);
+	}
+
+private:
+
+	short* samples;
+	sf::SoundBuffer buffer;
+
 	void setSampleInfo(AudioInfo& audioInfo)
 	{
 		// load an audio buffer from a sound file and get the sample count, sample rate, and channel count
-		if (fileName.length() > 0) { buffer.loadFromFile(fileName); }
 		audioInfo.setSampleCount(buffer.getSampleCount());
 		audioInfo.setSampleRate(buffer.getSampleRate());
 		audioInfo.setChannelCount(buffer.getChannelCount());
@@ -48,24 +54,24 @@ public:
 		loadSamples(audioInfo.getSampleCount());
 	}
 
-	short* getSamples()
+	// fill the local samples array with the audio samples from the SoundBuffer
+	void loadSamples(long long sampleCount)
 	{
-		return samples;
+		// array to hold the audio samples
+		samples = new short[sampleCount];
+
+		const short* tempSamples = buffer.getSamples();
+		for (int i = 0; i < sampleCount; i++)
+		{
+			//load samples from buffer into samples[]
+			samples[i] = tempSamples[i];
+		}
 	}
-
-	sf::SoundBuffer getBuffer(string fileName)
-	{
-		buffer.loadFromFile(fileName);
-
-		return buffer;
-	}
-
 
 	// returns a vector of the sample index of each note found
 	// (sample index can easily be converted to time or beat number)
 	void findNoteLocations(AudioInfo& audioInfo)
 	{
-
 		/*
 		algorithm for finding new notes:
 
@@ -255,29 +261,7 @@ public:
 
 	}
 
-private:
-
-	short* samples;
-
-	sf::SoundBuffer buffer;
-
-	string fileName;
-
-	// fill the local samples array with the audio samples from the SoundBuffer
-	void loadSamples(long long sampleCount)
-	{
-
-		// array to hold the audio samples
-		samples = new short[sampleCount];
-
-		const short* tempSamples = buffer.getSamples();
-		for (int i = 0; i < sampleCount; i++)
-		{
-			//load samples from buffer into samples[]
-			samples[i] = tempSamples[i];
-		}
-	}
-
+	// used for finding note locations
 	int findMinFromQueue(queue<int> q)
 	{
 		queue<int> tempQueue;
@@ -302,5 +286,4 @@ private:
 
 		return min;
 	}
-
 };

@@ -1,6 +1,7 @@
 #ifndef AUDIOINFO_H
 #define AUDIOINFO_H
 
+#include <SFML/Audio.hpp>
 #include <vector>
 
 using namespace std;
@@ -11,15 +12,9 @@ public:
 
 	AudioInfo() {}
 
-	AudioInfo(const AudioInfo &audioInfo)
+	void setBuffer(sf::SoundBuffer buffer)
 	{
-		sampleCount = audioInfo.sampleCount;
-		sampleRate = audioInfo.sampleRate;
-		channelCount = audioInfo.channelCount;
-		bpm = audioInfo.bpm;
-		shortestNote = audioInfo.shortestNote;
-		noteLocations = audioInfo.noteLocations;
-		samplesBeforeFirstNote = audioInfo.samplesBeforeFirstNote;
+		this->buffer = buffer;
 	}
 
 	void setSampleCount(long long sampleCount)
@@ -55,6 +50,11 @@ public:
 	void setSamplesBeforeFirstNote(int samplesBeforeFirstNote)
 	{
 		this->samplesBeforeFirstNote = samplesBeforeFirstNote;
+	}
+
+	sf::SoundBuffer getBuffer()
+	{
+		return buffer;
 	}
 
 	long long getSampleCount()
@@ -93,6 +93,8 @@ public:
 	}
 
 private:
+
+	sf::SoundBuffer buffer;
 
 	long long sampleCount;
 	int sampleRate;
