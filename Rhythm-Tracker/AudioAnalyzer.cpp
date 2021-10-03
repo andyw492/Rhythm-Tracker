@@ -31,44 +31,26 @@ public:
 		buffer = inputBuffer;
 	}
 
-	void setAudioInfo(int inputtedBpm, string inputtedShortestNote)
+	void setAudioInfo(AudioInfo& audioInfo)
 	{
-		AudioInfo::bpm = inputtedBpm;
-
-		if (inputtedShortestNote == "quarter") { AudioInfo::shortestNote = 1.0; }
-		if (inputtedShortestNote == "eighth") { AudioInfo::shortestNote = 0.5; }
-		if (inputtedShortestNote == "sixteenth") { AudioInfo::shortestNote = 0.25; }
+		setSampleInfo(audioInfo);
+		findNoteLocations(audioInfo);
 	}
 
-	void setSampleInfo()
+	void setSampleInfo(AudioInfo& audioInfo)
 	{
 		// load an audio buffer from a sound file and get the sample count, sample rate, and channel count
 		if (fileName.length() > 0) { buffer.loadFromFile(fileName); }
-		AudioInfo::sampleCount = buffer.getSampleCount();
-		AudioInfo::sampleRate = buffer.getSampleRate();
-		AudioInfo::channelCount = buffer.getChannelCount();
+		audioInfo.setSampleCount(buffer.getSampleCount());
+		audioInfo.setSampleRate(buffer.getSampleRate());
+		audioInfo.setChannelCount(buffer.getChannelCount());
 
-		loadSamples();
+		loadSamples(audioInfo.getSampleCount());
 	}
 
 	short* getSamples()
 	{
 		return samples;
-	}
-
-	long long getSampleCount()
-	{
-		return AudioInfo::sampleCount;
-	}
-
-	int getSampleRate()
-	{
-		return AudioInfo::sampleRate;
-	}
-
-	int getChannelCount()
-	{
-		return AudioInfo::channelCount;
 	}
 
 	sf::SoundBuffer getBuffer(string fileName)
@@ -81,7 +63,7 @@ public:
 
 	// returns a vector of the sample index of each note found
 	// (sample index can easily be converted to time or beat number)
-	void findNoteLocations()
+	void findNoteLocations(AudioInfo& audioInfo)
 	{
 
 		/*
@@ -97,6 +79,12 @@ public:
 		4) repeat from (2) until the end of the non zero samples has been reached
 		*/
 
+		vector<int> noteLocations;
+		long long sampleCount = audioInfo.getSampleCount();
+		int bpm = audioInfo.getBpm();
+		int sampleRate = audioInfo.getSampleRate();
+		int channelCount = audioInfo.getChannelCount();
+		double shortestNote = audioInfo.getShortestNote();
 
 		vector<short> noteLocationSampleValues; //for debugging
 
@@ -106,18 +94,18 @@ public:
 
 		int currentSampleIndex = 0;
 		// the for loop should break before the count reaches sampleCount
-		for (int i = 0; i < AudioInfo::sampleCount; i++)
+		for (int i = 0; i < audioInfo.getSampleCount(); i++)
 		{
 			if (abs(samples[i]) > newNoteSampleThreshold)
 			{
 				// the first note is found when the sample is greater than newNoteSampleThreshold
 				// currentSampleIndex is the sample index of the first note
 				currentSampleIndex = i;
-				AudioInfo::noteLocations.push_back(currentSampleIndex);
+				noteLocations.push_back(currentSampleIndex);
 				noteLocationSampleValues.push_back(samples[currentSampleIndex]);
 
 				// set this value for playing the audio in WindowMaker.cpp
-				AudioInfo::samplesBeforeFirstNote = currentSampleIndex;
+				audioInfo.setSamplesBeforeFirstNote(currentSampleIndex);
 
 				break;
 			}
@@ -126,7 +114,7 @@ public:
 		bool endOfSamplesReached = false;
 		int sampleBatchSize = 500;
 
-		while (currentSampleIndex + sampleBatchSize < AudioInfo::sampleCount)
+		while (currentSampleIndex + sampleBatchSize < sampleCount)
 		{
 			cout << "currentSampleIndex: " << currentSampleIndex << endl;
 
@@ -137,7 +125,7 @@ public:
 			// waitLength = 0.5 * (seconds per beat * shortest note length) * (sample rate * channel count)
 
 			// waitLength is the number of samples to wait
-			int waitLength = 0.5 * ((60.0 / AudioInfo::bpm) * AudioInfo::shortestNote) * (AudioInfo::sampleRate * AudioInfo::channelCount);
+			int waitLength = 0.5 * ((60.0 / bpm) * shortestNote) * (sampleRate * channelCount);
 			currentSampleIndex += waitLength;
 
 
@@ -161,7 +149,7 @@ public:
 			{
 				// if there are less than 1000 non zero samples remaining (i.e. the next average cant be computed)
 				// then the end of the samples has been reached
-				if (currentSampleIndex >= AudioInfo::sampleCount - 1000)
+				if (currentSampleIndex >= sampleCount - 1000)
 				{
 					endOfSamplesReached = true;
 				}
@@ -184,7 +172,7 @@ public:
 			while (!nextNoteCandidateFound)
 			{
 				// break from the while loop if the next average cant be computed
-				if (currentSampleIndex + sampleBatchSize >= AudioInfo::sampleCount) { break; }
+				if (currentSampleIndex + sampleBatchSize >= sampleCount) { break; }
 
 				// record the next 1000 samples and find the maximum sample value
 				// (1000 samples = approx. 0.01 seconds = 1 / 50 of a quarter note at 120 bpm)
@@ -237,7 +225,7 @@ public:
 
 						if (currentAverage > newNoteSampleThreshold)
 						{
-							AudioInfo::noteLocations.push_back(firstIncreasingAverageLocation);
+							noteLocations.push_back(firstIncreasingAverageLocation);
 							noteLocationSampleValues.push_back(samples[firstIncreasingAverageLocation]); //for debugging
 						}
 					}
@@ -257,10 +245,13 @@ public:
 			//4) repeat from (2) until the end of the non zero samples has been reached
 		}
 
-		for (int i = 0; i < AudioInfo::noteLocations.size(); i++)
+		for (int i = 0; i < noteLocations.size(); i++)
 		{
 			//cout << "noteLocations " << i << ": " << AudioInfo::noteLocations[i] << endl;
 		}
+
+		// push the found note locations into audioInfo
+		audioInfo.setNoteLocations(noteLocations);
 
 	}
 
@@ -273,13 +264,14 @@ private:
 	string fileName;
 
 	// fill the local samples array with the audio samples from the SoundBuffer
-	void loadSamples()
+	void loadSamples(long long sampleCount)
 	{
+
 		// array to hold the audio samples
-		samples = new short[AudioInfo::sampleCount];
+		samples = new short[sampleCount];
 
 		const short* tempSamples = buffer.getSamples();
-		for (int i = 0; i < AudioInfo::sampleCount; i++)
+		for (int i = 0; i < sampleCount; i++)
 		{
 			//load samples from buffer into samples[]
 			samples[i] = tempSamples[i];

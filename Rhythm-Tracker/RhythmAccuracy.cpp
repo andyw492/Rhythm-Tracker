@@ -12,7 +12,10 @@ class RhythmAccuracy
 
 public:
 
-	RhythmAccuracy() {}
+	RhythmAccuracy(AudioInfo info)
+	{
+		audioInfo = AudioInfo(info);
+	}
 
 	// function called in main.cpp
 	// returns a vector of the differences between found note location and expected note location for each beat
@@ -25,10 +28,10 @@ public:
 		vector<int> expectedNoteLocations(findExpectedNoteLocations());
 		
 		
-		double samplesPerBeat = AudioInfo::sampleRate * AudioInfo::channelCount * (60.0 / AudioInfo::bpm);
+		double samplesPerBeat = audioInfo.getSampleRate() * audioInfo.getChannelCount() *(60.0 / audioInfo.getBpm());
 		
 		// create a copy of AudioInfo::noteLocations because it needs to be modified to find the beat differences
-		vector<int> tempNoteLocations = AudioInfo::noteLocations;
+		vector<int> tempNoteLocations = audioInfo.getNoteLocations();
 
 		for (int i = 0; i < tempNoteLocations.size(); i++)
 		{
@@ -53,37 +56,35 @@ public:
 		return beatDifferences;
 	}
 
-
-
 	// returns a vector of the expected (i.e. rhythmically correct) locations for each note in noteLocations
 	vector<int> findExpectedNoteLocations()
 	{
-		
+		vector<int> noteLocations = audioInfo.getNoteLocations();
 		vector<int> expectedNoteLocations;
 
-		if (AudioInfo::noteLocations.size() == 0)
+		if (noteLocations.size() == 0)
 		{
 			return expectedNoteLocations;
 		}
 
-		int sampleIndex = AudioInfo::noteLocations[0];
+		int sampleIndex = noteLocations[0];
 		expectedNoteLocations.push_back(sampleIndex);
 
 		// sampleIndexIncrementCount is the number of samples for each beat
-		double notesPerSecond = 1 / (AudioInfo::bpm / 60.0);
-		double sampleIndexIncrementCount = notesPerSecond * AudioInfo::shortestNote * AudioInfo::sampleRate * AudioInfo::channelCount;
+		double notesPerSecond = 1 / (audioInfo.getBpm() / 60.0);
+		double sampleIndexIncrementCount = notesPerSecond * audioInfo.getShortestNote() * audioInfo.getSampleRate() * audioInfo.getChannelCount();
 
 		// starting at the sample index of the first note, increment sampleIndex by the number of samples per beat
 		// until there is a note that corresponds to the current beat
 		// when a corresponding note is found (i.e. the next note in noteLocations), 
 		// push it into expectedNoteLocations and end the for loop iteration to begin looking for the next note
-		for (int i = 1; i < AudioInfo::noteLocations.size(); i++)
+		for (int i = 1; i < noteLocations.size(); i++)
 		{
 			bool noteFound = false;
 
 			while (!noteFound)
 			{
-				if (sampleIndex + sampleIndexIncrementCount >= AudioInfo::sampleCount)
+				if (sampleIndex + sampleIndexIncrementCount >= audioInfo.getSampleCount())
 				{
 					break;
 				}
@@ -93,7 +94,7 @@ public:
 				int noteSearchStart = sampleIndex - (0.75 * sampleIndexIncrementCount);
 				int noteSearchEnd = sampleIndex + (0.75 * sampleIndexIncrementCount);
 
-				if (AudioInfo::noteLocations[i] > noteSearchStart && AudioInfo::noteLocations[i] < noteSearchEnd)
+				if (noteLocations[i] > noteSearchStart && noteLocations[i] < noteSearchEnd)
 				{
 					noteFound = true;
 					expectedNoteLocations.push_back(sampleIndex);
@@ -113,5 +114,6 @@ public:
 
 private:
 
+	AudioInfo audioInfo;
 
 };

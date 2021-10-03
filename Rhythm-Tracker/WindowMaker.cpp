@@ -84,8 +84,9 @@ class WindowMaker
 {
 public:
 
-	WindowMaker()
+	WindowMaker(AudioInfo info)
 	{
+		audioInfo = AudioInfo(info);
 		displayStartScreen = true;
 	}
 
@@ -123,17 +124,18 @@ public:
 		stream.load(buffer);
 
 		// skip all of the audio before the first note in the audio stream
-		sf::Time secondsBeforeFirstNote = sf::seconds(AudioInfo::samplesBeforeFirstNote / float(AudioInfo::sampleRate * AudioInfo::channelCount));
+		sf::Time secondsBeforeFirstNote = sf::seconds(audioInfo.getSamplesBeforeFirstNote() / float(audioInfo.getSampleRate() * audioInfo.getChannelCount()));
 		stream.setPlayingOffset(secondsBeforeFirstNote);
 		cout << "playing offset: " << secondsBeforeFirstNote.asSeconds() << endl;
 		
 		// vector of the note locations converted to seconds
 		// used to display each rectangle whenever its note is played
+		vector<int> noteLocations = audioInfo.getNoteLocations();
 		vector<double> noteLocations_seconds;
-		cout << "notelocations size is " << AudioInfo::noteLocations.size() << endl;
-		for (int i = 0; i < AudioInfo::noteLocations.size(); i++)
+		cout << "notelocations size is " << noteLocations.size() << endl;
+		for (int i = 0; i < noteLocations.size(); i++)
 		{
-			double currentNoteLocation_seconds = (AudioInfo::noteLocations[i] / double(AudioInfo::sampleRate * AudioInfo::channelCount));
+			double currentNoteLocation_seconds = (noteLocations[i] / double(audioInfo.getSampleRate() * audioInfo.getChannelCount()));
 
 			// shift the real note locations left so that the audio before the first note can be skipped
 			// (the note locations need to be modified because they are used to determine when to display each rectangle)
@@ -418,7 +420,7 @@ private:
 		return rectangles;
 	}
 
-
+	AudioInfo audioInfo;
 	bool displayStartScreen;
 
 };

@@ -1,0 +1,36 @@
+/*
+	cout << settingsFile.is_open() << endl;
+
+	bool foundString = false;
+	int value = -1;
+
+	while (!foundString && !settingsFile.eof())
+	{
+		string fileLine;
+		getline(settingsFile, fileLine);
+		cout << fileLine << endl;
+
+		value++;
+		if (value == 10)
+		{
+			while (true) {}
+		}
+
+		if (fileLine.find(searchSetting) != string::npos)
+		{
+			printf("found the search setting\n");
+			value = stoi(fileLine.substr(fileLine.find(":") + 1, fileLine.find("\n")));
+			foundString = true;
+		}
+	}
+
+	if (!foundString)
+	{
+		printf("ERROR: setting not found");
+	}
+
+	settingsFile.close();*/
+
+		string searchSetting = "Max Rectangle Height";
+
+	fstream settingsFile("Rhythm-Tracker/Settings.txt");
