@@ -25,7 +25,7 @@ public:
 
 	Button(float posX, float posY, string s, sf::Font* font)
 	{
-		int sizeX = 100;
+		int sizeX = 20 + 10 * s.length();
 		int sizeY = 50;
 
 		rectangle = sf::RectangleShape(sf::Vector2f(sizeX, sizeY));
@@ -38,7 +38,7 @@ public:
 
 		// position X formula: (posX + (sizeX / n)), where n = s.length() - 1
 		// (placeholder formula for centering text on button)
-		text.setPosition(posX + (sizeX / (s.length() - 1)), posY + (sizeY / 5));
+		text.setPosition(posX + 10, posY + 10);
 		text.setFillColor(sf::Color::Black);
 		text.setCharacterSize(25);
 		active = false;
@@ -110,35 +110,94 @@ public:
 		}
 
 		// initialize buttons
-		vector<Button> buttons;
-		buttons.push_back(Button(1000, 800, "Restart", &font));
-		buttons.push_back(Button(1200, 800, "Exit", &font));
+
+		// all screens
+		Button homeButton = Button(50, 50, "Home", &font);
+		Button settingsButton = Button(1470, 50, "Settings", &font);
+		Button exitButton = Button(1500, 800, "Exit", &font);
+		Button dummyButton; // to ensure indexes of home, settings, and exit remain constant
+
+		for (int i = home; i != enumEnd; i++)
+		{
+			Screen screen = static_cast<Screen>(i);
+
+			if (screen != home) { comprehensiveButtons[screen].push_back(homeButton); }
+			else{ comprehensiveButtons[screen].push_back(dummyButton); }
+
+			if (screen != settings) { comprehensiveButtons[screen].push_back(settingsButton); }
+			else { comprehensiveButtons[screen].push_back(dummyButton); }
+
+			comprehensiveButtons[screen].push_back(exitButton);
+		}
+
+		// home screen
+		comprehensiveButtons[home].push_back(Button(600, 500, "New Recording", &font));
+		comprehensiveButtons[home].push_back(Button(800, 500, "Open Recording", &font));
+
+		// settings screen
+
+
+		// file screen
+		comprehensiveButtons[file].push_back(Button(500, 500, "File 1", &font));
+
+		// info screen
+		comprehensiveButtons[info].push_back(Button(500, 500, "Start Recording", &font));
+
+		// recording screen
+		comprehensiveButtons[recording].push_back(Button(500, 500, "End Recording", &font));
+
+		// analysis screen
+		comprehensiveButtons[analysis].push_back(Button(1000, 800, "Restart", &font));
+		comprehensiveButtons[analysis].push_back(Button(800, 800, "Save Recording", &font));
+
+		// saveFile screen
+		//buttons.push_back(Button(1000, 800, "Restart", &font));
+		//buttons.push_back(Button(1200, 800, "Exit", &font));
 
 		// initialize the clock (restart after end of start screen)
-		sf::Clock clock;
-		bool startedClock = false;
+
 
 		// initialize the audio stream which plays the audio
-		AudioStream stream;
+		
 
-		vector<double> noteLocations_seconds;
+		
 
-		int noteLocationCount = 0;
+		
 		string enteredText = "";
-		bool newText = false;
 
 		//string fileName = "Recording (228).wav";
-		string fileName = "";
+		
 		int bpm = 120;
 		string shortestNoteString = "eighth";
 
-		bool displayStartScreen = true;
-		bool displayMainScreen = false;
+		// file
+		int chosenFileIndex = -1;
+		string currentFileName = "";
+
+		// recording
+		sf::SoundBufferRecorder recorder;
+		bool recordingStarted = false;
+		bool endRecording = false;
+
+		// analysis
+		bool preparedAnalysis = false;
+		bool startedClock = false;
+
+		AudioStream stream;
+		sf::Clock clock;
+		// store time for when going from analysis page to save file page (b/c clock has to be restarted)
+		sf::Time storedTime = sf::seconds(0);
+
+		vector<double> noteLocations_seconds;
+		int noteLocationCount = 0;
+		
+		currentScreen = home;
 
 		//--------------------MAIN WINDOW LOOP--------------------------
 
 		while (window.isOpen())
 		{
+			//-------------------POLL EVENTS----------------------------
 			sf::Event event;
 			while (window.pollEvent(event))
 			{
@@ -157,167 +216,465 @@ public:
 
 				if (event.type == sf::Event::MouseButtonPressed)
 				{
+					// find out which button was clicked on (if any)
 					sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-					int buttonIndex = processMouseClick(mousePosition, buttons);
+					int buttonIndex = processMouseClick(mousePosition);
+
+					if (buttonIndex == -1) { continue; }
+
+					// carry out button behavior
+
+					// home button
+					if (currentScreen != home && buttonIndex == 0) { currentScreen = home; }
+
+					// settings button
+					if (currentScreen != settings && buttonIndex == 1) { currentScreen = settings; }
+					
+					// exit button
+					if (buttonIndex == 2) { window.close(); }
+
+					// other buttons
+					switch (currentScreen)
+					{
+						case home:
+						{
+							if (buttonIndex == 3) { currentScreen = info; }
+							if (buttonIndex == 4) { currentScreen = file; }
+
+							break;
+						}
+
+						case settings:
+						{
+							break;
+						}
+
+						case file:
+						{
+							if (buttonIndex > 2) { chosenFileIndex = buttonIndex - 3; }
+
+							break;
+						}
+
+						case info:
+						{
+							if (buttonIndex == 3) { currentScreen = recording; }
+
+							break;
+						}
+
+						case recording:
+						{
+							if (buttonIndex == 3) { endRecording = true; }
+
+							break;
+						}
+
+						case analysis:
+						{
+							// restart button
+							if (buttonIndex == 3)
+							{
+								stream.stop();
+								noteLocationCount = 0;
+								startedClock = false;
+							}
+
+							if (buttonIndex == 4)
+							{
+								stream.pause();
+								startedClock = false;
+								storedTime = clock.getElapsedTime();
+								currentScreen = saveFile;
+							}
+
+
+							if (buttonIndex == 5) { currentScreen = info; }
+							if (buttonIndex == 6) { currentScreen = file; }
+
+							break;
+						}
+
+						case saveFile:
+						{
+							if (buttonIndex == 3) { currentScreen = analysis; }
+
+							break;
+						}
+
+						default: break;
+					}
 
 					// restart
-					if (buttonIndex == 0)
+					//if (buttonIndex == 0)
+					//{
+
+					//}
+					
+				}
+
+			}
+
+			//-------------------DISPLAY SCREENS--------------------------
+
+			switch (currentScreen)
+			{
+				case home:
+				{
+					vector<Button> currentScreenButtons = comprehensiveButtons[currentScreen];
+
+					if (enteredText.find("q") != string::npos)
+					{
+						currentScreen = recording;
+					}
+
+					sf::Text text;
+					text.setFont(font);
+					text.setFillColor(sf::Color::Black);
+					text.setPosition(sf::Vector2f(730, 300));
+					text.setString("Rhythm Tracker");
+
+					sf::Text text2(text);
+					text2.setPosition(sf::Vector2f(770, 450));
+					text2.setString("Press Q");
+
+					//--------------------DRAW TO WINDOW--------------------------
+
+					window.clear(sf::Color::White);
+
+					window.draw(text);
+					window.draw(text2);
+
+					// draw the buttons
+					for (int i = 0; i < currentScreenButtons.size(); i++)
+					{
+						window.draw(currentScreenButtons[i].getRectangle());
+
+						sf::Text text(currentScreenButtons[i].getText());
+						window.draw(currentScreenButtons[i].getText());
+					}
+
+					window.display();
+					break;
+				}
+
+				case settings:
+				{
+					vector<Button> currentScreenButtons = comprehensiveButtons[currentScreen];
+
+					sf::Text text;
+					text.setFont(font);
+					text.setFillColor(sf::Color::Black);
+					text.setPosition(sf::Vector2f(730, 300));
+					text.setString("Settings Screen");
+
+					//--------------------DRAW TO WINDOW--------------------------
+
+					window.clear(sf::Color::White);
+
+					window.draw(text);
+
+					// draw the buttons
+					for (int i = 0; i < currentScreenButtons.size(); i++)
+					{
+						window.draw(currentScreenButtons[i].getRectangle());
+
+						sf::Text text(currentScreenButtons[i].getText());
+						window.draw(currentScreenButtons[i].getText());
+					}
+
+					window.display();
+
+					break;
+				}
+
+				case file:
+				{
+					vector<Button> currentScreenButtons = comprehensiveButtons[currentScreen];
+
+					sf::Text text;
+					text.setFont(font);
+					text.setFillColor(sf::Color::Black);
+					text.setPosition(sf::Vector2f(730, 300));
+					text.setString("File Screen");
+
+					//--------------------DRAW TO WINDOW--------------------------
+
+					window.clear(sf::Color::White);
+
+					window.draw(text);
+
+					// draw the buttons
+					for (int i = 0; i < currentScreenButtons.size(); i++)
+					{
+						window.draw(currentScreenButtons[i].getRectangle());
+
+						sf::Text text(currentScreenButtons[i].getText());
+						window.draw(currentScreenButtons[i].getText());
+					}
+
+					window.display();
+
+					//--------------------GET AUDIO FROM FILE----------------------
+
+					if (chosenFileIndex == -1) { break; }
+
+					int bpm = -1;
+					if (chosenFileIndex == 0)
+					{
+						currentFileName = "Recording (228).wav";
+						bpm = 120;
+					}
+
+					loadAudioInfo(currentFileName, bpm, "sixteenth");
+
+					startedClock = false;
+					preparedAnalysis = false;
+					currentScreen = analysis;
+
+					break;
+				}
+
+				case info:
+				{
+					vector<Button> currentScreenButtons = comprehensiveButtons[currentScreen];
+
+					sf::Text text;
+					text.setFont(font);
+					text.setFillColor(sf::Color::Black);
+					text.setPosition(sf::Vector2f(730, 300));
+					text.setString("Info Screen");
+
+					//--------------------DRAW TO WINDOW--------------------------
+
+					window.clear(sf::Color::White);
+
+					window.draw(text);
+
+					// draw the buttons
+					for (int i = 0; i < currentScreenButtons.size(); i++)
+					{
+						window.draw(currentScreenButtons[i].getRectangle());
+
+						sf::Text text(currentScreenButtons[i].getText());
+						window.draw(currentScreenButtons[i].getText());
+					}
+
+					window.display();
+
+					break;
+				}
+
+				case recording:
+				{
+					vector<Button> currentScreenButtons = comprehensiveButtons[currentScreen];
+
+					sf::Text text;
+					text.setFont(font);
+					text.setFillColor(sf::Color::Black);
+					text.setPosition(sf::Vector2f(750, 300));
+					text.setString("Recording...");
+
+					sf::Text text2(text);
+					text2.setPosition(sf::Vector2f(640, 450));
+					text2.setString("(Press any key to stop recording)");
+
+					//--------------------DRAW TO WINDOW--------------------------
+
+					window.clear(sf::Color::White);
+
+					window.draw(text);
+					window.draw(text2);
+
+					// draw the buttons
+					for (int i = 0; i < currentScreenButtons.size(); i++)
+					{
+						window.draw(currentScreenButtons[i].getRectangle());
+
+						sf::Text text(currentScreenButtons[i].getText());
+						window.draw(currentScreenButtons[i].getText());
+					}
+
+					window.display();
+
+					//--------------------RECORD AUDIO--------------------------
+
+					if (!recordingStarted)
+					{
+						// move beginning of this to start screen
+
+						std::vector<std::string> availableDevices = sf::SoundRecorder::getAvailableDevices();
+
+						for (int i = 0; i < availableDevices.size(); i++)
+						{
+							cout << "available devices: " << availableDevices[i] << endl;
+						}
+
+						cout << "which device?" << endl;
+						int deviceNum = 0; // cin >> deviceNum;
+
+						// choose a device
+						std::string inputDevice = availableDevices[deviceNum];
+
+						// set the device
+						if (!recorder.setDevice(inputDevice))
+						{
+							cout << "couldn't set device" << endl;
+						}
+
+						// start the capture
+						recorder.start();
+
+						newText = false;
+						recordingStarted = true;
+					}
+
+					if (!endRecording) { break; }
+
+					// stop the capture once text is entered in
+					recorder.stop();
+
+					//----------------LOAD INFO FROM AUDIO----------------------
+
+					// retrieve the buffer that contains the captured audio data
+					const sf::SoundBuffer& receivedBuffer = recorder.getBuffer();
+					buffer = sf::SoundBuffer(receivedBuffer);
+
+					loadAudioInfo("", bpm, shortestNoteString);
+
+					startedClock = false;
+					preparedAnalysis = false;
+					currentScreen = analysis;
+
+					break;
+				}
+
+				case analysis:
+				{
+					vector<Button> currentScreenButtons = comprehensiveButtons[currentScreen];
+
+					if (!preparedAnalysis)
+					{
+						// analyze data from given audio
+						loadAudioAnalysis();
+
+						rectangles = getRectanglesFromData();
+
+						stream.load(audioInfo.getBuffer());
+
+						// skip all of the audio before the first note in the audio stream
+						sf::Time secondsBeforeFirstNote = sf::seconds(audioInfo.getSamplesBeforeFirstNote() / float(audioInfo.getSampleRate() * audioInfo.getChannelCount()));
+						stream.setPlayingOffset(secondsBeforeFirstNote);
+
+						// vector of the note locations converted to seconds
+						// used to display each rectangle whenever its note is played
+						vector<int> noteLocations = audioInfo.getNoteLocations();
+						for (int i = 0; i < noteLocations.size(); i++)
+						{
+							double currentNoteLocation_seconds = (noteLocations[i] / double(audioInfo.getSampleRate() * audioInfo.getChannelCount()));
+
+							// shift the real note locations left so that the audio before the first note can be skipped
+							// (the note locations need to be modified because they are used to determine when to display each rectangle)
+							currentNoteLocation_seconds -= double(secondsBeforeFirstNote.asSeconds());
+							noteLocations_seconds.push_back(currentNoteLocation_seconds);
+						}
+
+						preparedAnalysis = true;
+					}
+
+
+					// start the clock and begin playing audio
+					if (!startedClock)
+					{
+						clock.restart();
+						stream.play();
+						startedClock = true;
+					}
+
+					// if it is time to draw the next rectangle (i.e. the elapsed time >= the next note location), 
+					// then draw the next rectangle
+					if (noteLocationCount < noteLocations_seconds.size() &&
+						clock.getElapsedTime().asSeconds() >= noteLocations_seconds[noteLocationCount])
+					{
+						cout << "drawing rectangle number " << noteLocationCount << endl;
+
+						noteLocationCount++;
+					}
+
+					// create the axes
+					sf::RectangleShape yAxis(sf::Vector2f(5.f, 500.f));
+					yAxis.setFillColor(sf::Color::Black);
+					yAxis.setPosition(195.f, 200.f);
+
+					sf::RectangleShape xAxis(sf::Vector2f(800.f, 5.f));
+					xAxis.setFillColor(sf::Color::Black);
+					xAxis.setPosition(200.f, 447.f);
+
+					// let it play until it is finished
+					sf::Time audioDuration = stream.getBuffer().getDuration();
+					if (clock.getElapsedTime() + storedTime == audioDuration)
 					{
 						stream.stop();
-						noteLocationCount = 0;
-						startedClock = false;
+
+						// reset stored time
+						storedTime = sf::seconds(0);
 					}
-					
-					// exit
-					if (buttonIndex == 1)
+
+					//--------------------DRAW TO WINDOW--------------------------
+
+					window.clear(sf::Color::White);
+
+					window.draw(yAxis);
+					window.draw(xAxis);
+
+					for (int i = 0; i < noteLocationCount; i++)
 					{
-						window.close();
+						window.draw(rectangles[i]);
 					}
-				}
 
-			}
-
-			//--------------------START SCREEN--------------------------
-			if (displayStartScreen)
-			{
-				vector<int> activeButtons = {};
-
-				for (int i = 0; i < buttons.size(); i++)
-				{
-					if (find(activeButtons.begin(), activeButtons.end(), i) != activeButtons.end())
+					// draw the buttons
+					for (int i = 0; i < currentScreenButtons.size(); i++)
 					{
-						buttons[i].setActive(true);
+						window.draw(currentScreenButtons[i].getRectangle());
+
+						sf::Text text(currentScreenButtons[i].getText());
+						window.draw(currentScreenButtons[i].getText());
 					}
-					else
+
+					window.display();
+
+					break;
+				}
+
+				case saveFile:
+				{
+					vector<Button> currentScreenButtons = comprehensiveButtons[currentScreen];
+
+					sf::Text text;
+					text.setFont(font);
+					text.setFillColor(sf::Color::Black);
+					text.setPosition(sf::Vector2f(730, 300));
+					text.setString("Save File Screen");
+
+					//--------------------DRAW TO WINDOW--------------------------
+
+					window.clear(sf::Color::White);
+
+					window.draw(text);
+
+					// draw the buttons
+					for (int i = 0; i < currentScreenButtons.size(); i++)
 					{
-						buttons[i].setActive(false);
+						window.draw(currentScreenButtons[i].getRectangle());
+
+						sf::Text text(currentScreenButtons[i].getText());
+						window.draw(currentScreenButtons[i].getText());
 					}
+
+					window.display();
+
+					break;
 				}
-
-				if (enteredText.find("q") != string::npos)
-				{
-					displayStartScreen = false;
-				}
-
-				window.clear(sf::Color::White);
-
-				for (int i = 0; i < buttons.size(); i++)
-				{
-					//buttons[i].draw(window);
-				}
-
-				sf::Text text;
-				text.setFont(font);
-				text.setFillColor(sf::Color::Black);
-				text.setPosition(sf::Vector2f(100, 100));
-				text.setString(enteredText);
-
-				window.draw(text);
-
-				window.display();				
-			}
-			//--------------------POST-START SCREEN--------------------------
-			else if (!displayMainScreen)
-			{
-				loadAudioInfo(fileName, bpm, shortestNoteString);
-				loadAudioAnalysis();
-
-				rectangles = getRectanglesFromData();
-
-				stream.load(audioInfo.getBuffer());
-
-				// skip all of the audio before the first note in the audio stream
-				sf::Time secondsBeforeFirstNote = sf::seconds(audioInfo.getSamplesBeforeFirstNote() / float(audioInfo.getSampleRate() * audioInfo.getChannelCount()));
-				stream.setPlayingOffset(secondsBeforeFirstNote);
-
-				// vector of the note locations converted to seconds
-				// used to display each rectangle whenever its note is played
-				vector<int> noteLocations = audioInfo.getNoteLocations();
-				for (int i = 0; i < noteLocations.size(); i++)
-				{
-					double currentNoteLocation_seconds = (noteLocations[i] / double(audioInfo.getSampleRate() * audioInfo.getChannelCount()));
-
-					// shift the real note locations left so that the audio before the first note can be skipped
-					// (the note locations need to be modified because they are used to determine when to display each rectangle)
-					currentNoteLocation_seconds -= double(secondsBeforeFirstNote.asSeconds());
-					noteLocations_seconds.push_back(currentNoteLocation_seconds);
-				}
-
-				displayMainScreen = true;
-			}
-			//--------------------MAIN SCREEN---------------------------
-			else if(displayMainScreen)
-			{
-				vector<int> activeButtons = {0, 1};
-
-				for (int i = 0; i < buttons.size(); i++)
-				{
-					if (find(activeButtons.begin(), activeButtons.end(), i) != activeButtons.end())
-					{
-						buttons[i].setActive(true);
-					}
-					else
-					{
-						buttons[i].setActive(false);
-					}
-				}
-
-				window.clear(sf::Color::White);
-
-				// start the clock and begin playing audio
-				if (!startedClock)
-				{
-					clock.restart();
-					stream.play();
-					startedClock = true;
-				}
-
-				// if it is time to draw the next rectangle (i.e. the elapsed time >= the next note location), 
-				// then draw the next rectangle
-
-				if (noteLocationCount < noteLocations_seconds.size() &&
-					clock.getElapsedTime().asSeconds() >= noteLocations_seconds[noteLocationCount])
-				{
-					cout << "drawing rectangle number " << noteLocationCount << endl;
-
-					noteLocationCount++;
-				}
-
-				for (int i = 0; i < noteLocationCount; i++)
-				{
-					window.draw(rectangles[i]);
-				}
-
-				// draw the axes
-				sf::RectangleShape yAxis(sf::Vector2f(5.f, 500.f));
-				yAxis.setFillColor(sf::Color::Black);
-				yAxis.setPosition(195.f, 200.f);
-
-				sf::RectangleShape xAxis(sf::Vector2f(800.f, 5.f));
-				xAxis.setFillColor(sf::Color::Black);
-				xAxis.setPosition(200.f, 447.f);
-
-				window.draw(yAxis);
-				window.draw(xAxis);
-
-				// draw the active buttons
-				for (int i = 0; i < buttons.size(); i++)
-				{
-					window.draw(buttons[i].getRectangle());
-
-					sf::Text text(buttons[i].getText());
-					window.draw(buttons[i].getText());
-				}
-
-				window.display();
-
-				// let it play until it is finished
-				sf::Time audioDuration = stream.getBuffer().getDuration();
-				if (clock.getElapsedTime() == audioDuration)
-				{
-					stream.stop();
-				}
-
 			}
 
 		}
@@ -336,51 +693,14 @@ private:
 
 	void loadAudioInfo(string fileName, int bpm, string shortestNoteString)
 	{
+
 		bool record = (fileName.length() == 0);
 
 		audioInfo.setBpm(bpm);
-		if (shortestNoteString == "quarter") { audioInfo.setShortestNote(1.0); }
-		if (shortestNoteString == "eighth") { audioInfo.setShortestNote(0.5); }
-		if (shortestNoteString == "sixteenth") { audioInfo.setShortestNote(0.25); }
-
-		sf::SoundBuffer buffer;
-		if (record)
-		{
-			std::vector<std::string> availableDevices = sf::SoundRecorder::getAvailableDevices();
-
-			for (int i = 0; i < availableDevices.size(); i++)
-			{
-				cout << "available devices: " << availableDevices[i] << endl;
-			}
-
-			cout << "which device?" << endl;
-			int deviceNum = 0; cin >> deviceNum;
-
-			// choose a device
-			std::string inputDevice = availableDevices[deviceNum];
-
-			// create the recorder
-			sf::SoundBufferRecorder recorder;
-
-			// set the device
-			if (!recorder.setDevice(inputDevice))
-			{
-				cout << "couldn't set device" << endl;
-			}
-
-			// start the capture
-			recorder.start();
-
-			// wait...
-			string s; cin >> s;
-
-			// stop the capture
-			recorder.stop();
-
-			// retrieve the buffer that contains the captured audio data
-			const sf::SoundBuffer& receivedBuffer = recorder.getBuffer();
-			buffer = sf::SoundBuffer(receivedBuffer);
-		}
+		audioInfo.setShortestNote(0.5);
+		//if (shortestNoteString == "quarter") { audioInfo.setShortestNote(1.0); }
+		//if (shortestNoteString == "eighth") { audioInfo.setShortestNote(0.5); }
+		//if (shortestNoteString == "sixteenth") { audioInfo.setShortestNote(0.25); }
 
 		AudioAnalyzer analyzer;
 		if (record)
@@ -417,13 +737,11 @@ private:
 
 	// check if the mouse click happened on any active buttons
 	// returns the index of the button pressed, -1 if no button
-	int processMouseClick(sf::Vector2i mousePosition, vector<Button> buttons)
+	int processMouseClick(sf::Vector2i mousePosition)
 	{
-		for (int i = 0; i < buttons.size(); i++)
+		for (int i = 0; i < comprehensiveButtons[currentScreen].size(); i++)
 		{
-			if (!buttons[i].isActive()) { continue; }
-
-			sf::RectangleShape rectangle = buttons[i].getRectangle();
+			sf::RectangleShape rectangle = comprehensiveButtons[currentScreen][i].getRectangle();
 
 			bool clickedButton = 
 			(
@@ -506,5 +824,13 @@ private:
 	AudioInfo audioInfo;
 	RhythmAccuracy rhythmAccuracy;
 
+	sf::SoundBuffer buffer;
+
+	bool newText = false;
+
+	enum Screen { home, settings, file, info, recording, analysis, saveFile, enumEnd };
+	Screen currentScreen;
+
+	map<Screen, vector<Button>> comprehensiveButtons;
 };
 
