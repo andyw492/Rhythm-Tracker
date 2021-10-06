@@ -79,9 +79,11 @@ public:
 		{
 			if (line.find("recording_index=") != string::npos)
 			{
-				highestRecordingIndex = stoi(line.substr(line.find("=")));
+				highestRecordingIndex = stoi(line.substr(line.find("=") + 1));
 			}
 		}
+
+		reader.close();
 		
 		int recording_index = highestRecordingIndex + 1;
 
@@ -94,7 +96,7 @@ public:
 		writer.open("Saved Recording Info.txt", ofstream::out | ofstream::app);
 		
 		writer << "recording_index=" << recording_index << endl;
-		writer << "name=" << fileName << endl;
+		writer << "fileName=" << fileName << endl;
 		writer << "sampleRate=" << info.getSampleRate() << endl;
 		writer << "channelCount=" << info.getChannelCount() << endl;
 		writer << "bpm=" << info.getBpm() << endl;
@@ -109,10 +111,12 @@ public:
 		}
 		// remove last ','
 		noteLocationsString = noteLocationsString.substr(0, noteLocationsString.length() - 1);
-		writer << "noteLocations=" << noteLocationsString << endl;
+		writer << noteLocationsString << endl;
 
 		writer << "samplesBeforeFirstNote=" << info.getSamplesBeforeFirstNote() << endl;
 		writer << "---" << endl;
+		
+		writer.close();
 
 		// save the audio as an .ogg file
 		buffer.saveToFile("Saved Recordings/" + fileName + ".ogg");

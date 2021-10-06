@@ -132,6 +132,11 @@ private:
 
 			// waitLength is the number of samples to wait
 			int waitLength = 0.5 * ((60.0 / bpm) * shortestNote) * (sampleRate * channelCount);
+			cout << "bpm: " << bpm << endl;
+			cout << "shortestNote: " << shortestNote << endl;
+			cout << "sampleRate: " << sampleRate << endl;
+			cout << "channelCount: " << channelCount << endl;
+			cout << "wait length: " << waitLength << endl;
 			currentSampleIndex += waitLength;
 
 
@@ -203,10 +208,12 @@ private:
 					continue;
 				}
 
-				if (minRejections != INT_MAX && currentAverage > minRejections * rejectionFactor) { nextNoteCandidateFound = true; }
-
-				//cout << "minRejections * rejectionFactor: " << (minRejections * rejectionFactor) << endl;
-				//cout << "current average [" << currentSampleIndex - sampleBatchSize << "-" << currentSampleIndex << "]: " << currentAverage << endl;
+				if (minRejections != INT_MAX && currentAverage > minRejections * rejectionFactor)
+				{
+					cout << "minRejections * rejectionFactor: " << (minRejections * rejectionFactor) << endl;
+					cout << "current average [" << currentSampleIndex - sampleBatchSize << "-" << currentSampleIndex << "]: " << currentAverage << endl;
+					nextNoteCandidateFound = true;
+				}
 
 				// we want three consecutive sample averages that are 1.5x an average taken before
 				if (currentAverage > (previousAverage * 1.5) || nextNoteCandidateFound)
@@ -216,6 +223,9 @@ private:
 					if (!firstIncreasingAverageLocation)
 					{
 						firstIncreasingAverageLocation = currentSampleIndex - sampleBatchSize;
+						cout << "current sample index: " << currentSampleIndex << endl;
+						cout << "sample batch size: " << sampleBatchSize << endl;
+						cout << "firstIncreasingAverageLocation: " << firstIncreasingAverageLocation << endl;
 						//currentSampleIndex - 1000 is the location of the first sample in the last group of 1000 samples
 					}
 
@@ -225,8 +235,8 @@ private:
 
 					if(nextNoteCandidateFound)
 					{
-						//cout << "previous average: " << previousAverage << endl;
-						//cout << "next note candidate: " << firstIncreasingAverageLocation << endl << endl;
+						cout << "previous average: " << previousAverage << endl;
+						cout << "next note candidate: " << firstIncreasingAverageLocation << endl << endl;
 						//string s; cin >> s;
 
 						if (currentAverage > newNoteSampleThreshold)

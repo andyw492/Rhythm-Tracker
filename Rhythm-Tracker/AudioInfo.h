@@ -32,9 +32,19 @@ public:
 		this->channelCount = channelCount;
 	}
 
+	void setFileName(string fileName)
+	{
+		this->fileName = fileName;
+	}
+
 	void setBpm(int bpm)
 	{
 		this->bpm = bpm;
+	}
+
+	void setInputDevice(int inputDevice)
+	{
+		this->inputDevice = inputDevice;
 	}
 
 	void setShortestNote(double shortestNote)
@@ -72,9 +82,19 @@ public:
 		return channelCount;
 	}
 
+	string getFileName()
+	{
+		return fileName;
+	}
+
 	int getBpm()
 	{
 		return bpm;
+	}
+
+	int getInputDevice()
+	{
+		return inputDevice;
 	}
 
 	double getShortestNote()
@@ -100,7 +120,9 @@ private:
 	int sampleRate;
 	int channelCount;
 
+	string fileName;
 	int bpm;
+	int inputDevice;
 	double shortestNote;
 
 	vector<int> noteLocations;
