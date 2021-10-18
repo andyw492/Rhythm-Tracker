@@ -3,6 +3,7 @@
 #include <SFML/Window.hpp>
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 #include <vector>
 #include <cassert>
 #include <map>
@@ -19,12 +20,14 @@ using namespace std;
 
 class Button
 {
-private:
+protected:
 
 	bool active;
 	sf::RectangleShape rectangle;
+	string buttonString;
 	sf::Text text;
 	sf::Font font;
+	bool isTextFieldBool;
 
 public:
 
@@ -32,6 +35,8 @@ public:
 
 	Button(float posX, float posY, string s, sf::Font* font)
 	{
+		cout << "button constructor" << endl;
+
 		int sizeX = 20 + 10 * s.length();
 		int sizeY = 50;
 
@@ -39,6 +44,8 @@ public:
 		rectangle.setPosition(sf::Vector2f(posX, posY));
 		rectangle.setOutlineColor(sf::Color::Black);
 		rectangle.setOutlineThickness(-1.f);
+
+		buttonString = s;
 
 		text.setFont(*font);
 		text.setString(s);
@@ -49,11 +56,18 @@ public:
 		text.setFillColor(sf::Color::Black);
 		text.setCharacterSize(25);
 		active = false;
+
+		isTextFieldBool = false;
 	}
 
 	sf::RectangleShape getRectangle()
 	{
 		return rectangle;
+	}
+
+	string getString()
+	{
+		return buttonString;
 	}
 
 	sf::Text getText()
@@ -83,7 +97,95 @@ public:
 
 	void deselect()
 	{
+		rectangle.setOutlineColor(sf::Color::Black);
+	}
 
+	bool isTextField()
+	{
+		return isTextFieldBool;
+	}
+
+	virtual void setInputString(string s)
+	{
+		cout << "in button set input string" << endl;
+	}
+
+	virtual sf::Text getInputText()
+	{
+		sf::Text dummyText;
+		dummyText.setString("");
+		return dummyText;
+	}
+
+	virtual void whatAmI()
+	{
+		cout << "i am button with string " << buttonString << endl;
+	}
+};
+
+class TextField : public Button
+{
+private:
+
+	sf::Text inputText;
+
+public:
+
+	TextField()
+	{
+		cout << "text field default constructor" << endl;
+	}
+
+	TextField(float posX, float posY, string s, sf::Font* font)
+	{
+		cout << "text field constructor" << endl;
+
+		int sizeX = 20 + 10 * s.length();
+		int sizeY = 50;
+
+		rectangle = sf::RectangleShape(sf::Vector2f(sizeX, sizeY));
+		rectangle.setPosition(sf::Vector2f(posX, posY));
+		rectangle.setOutlineColor(sf::Color::Black);
+		rectangle.setOutlineThickness(-1.f);
+
+		buttonString = s;
+
+		text.setFont(*font);
+		text.setString(s);
+
+		// position X formula: (posX + (sizeX / n)), where n = s.length() - 1
+		// (placeholder formula for centering text on button)
+
+		// for text fields, the text goes to the left of the button
+		text.setPosition(posX - (10 * s.length()), posY + 10);
+		text.setFillColor(sf::Color::Black);
+		text.setCharacterSize(25);
+
+		inputText.setFont(*font);
+		inputText.setString("");
+		inputText.setPosition(posX + 10, posY + 10);
+		inputText.setFillColor(sf::Color::Black);
+		inputText.setCharacterSize(25);
+
+		active = false;
+
+		isTextFieldBool = true;
+	}
+
+	void setInputString(string s)
+	{
+		cout << "setting input string to " << s << endl;
+		inputText.setString(s);
+	}
+
+	sf::Text getInputText()
+	{
+		return inputText;
+	}
+
+	void whatAmI()
+	{
+		cout << "i am text field" << endl;
 	}
 };
 
@@ -92,6 +194,18 @@ class WindowMaker
 public:
 
 	WindowMaker() {}
+
+	~WindowMaker()
+	{
+		for (int i = home; i != ScreenEnd; i++)
+		{
+			Screen screen = static_cast<Screen>(i);
+			for (int j = 0; j < comprehensiveButtons[screen].size(); j++)
+			{
+				delete comprehensiveButtons[screen][j];
+			}
+		}
+	}
 
 	int checkCount = 0;
 	void check()
@@ -119,50 +233,53 @@ public:
 		// initialize buttons
 		{
 			// all screens
-			Button homeButton = Button(50, 50, "Home", &font);
-			Button settingsButton = Button(1470, 50, "Settings", &font);
-			Button exitButton = Button(1500, 800, "Exit", &font);
-			Button dummyButton; // to ensure indexes of home, settings, and exit remain constant
-
 			for (int i = home; i != ScreenEnd; i++)
 			{
 				Screen screen = static_cast<Screen>(i);
 
-				if (screen != home) { comprehensiveButtons[screen].push_back(homeButton); }
-				else { comprehensiveButtons[screen].push_back(dummyButton); }
+				if (screen != home) { comprehensiveButtons[screen].push_back(new Button(50, 50, "Home", &font)); }
+				else { comprehensiveButtons[screen].push_back(new Button()); }
 
-				if (screen != settings) { comprehensiveButtons[screen].push_back(settingsButton); }
-				else { comprehensiveButtons[screen].push_back(dummyButton); }
+				if (screen != settings) { comprehensiveButtons[screen].push_back(new Button(1470, 50, "Settings", &font)); }
+				else { comprehensiveButtons[screen].push_back(new Button()); }
 
-				comprehensiveButtons[screen].push_back(exitButton);
+				comprehensiveButtons[screen].push_back(new Button(1500, 800, "Exit", &font));
 			}
 
 			// home screen
-			comprehensiveButtons[home].push_back(Button(600, 500, "New Recording", &font));
-			comprehensiveButtons[home].push_back(Button(800, 500, "Open Recording", &font));
+			comprehensiveButtons[home].push_back(new Button(600, 500, "New Recording", &font));
+			comprehensiveButtons[home].push_back(new Button(800, 500, "Open Recording", &font));
 
 			// settings screen
 
 
 			// file screen
-			comprehensiveButtons[file].push_back(Button(500, 500, "File 1", &font));
+			comprehensiveButtons[file].push_back(new Button(500, 500, "File 1", &font));
 
 			// info screen
-			comprehensiveButtons[info].push_back(Button(500, 500, "Start Recording", &font));
+			comprehensiveButtons[info].push_back(new Button(700, 600, "Start Recording", &font));
+			comprehensiveButtons[info].push_back(new TextField(500, 500, "Input Device: ", &font));
+			comprehensiveButtons[info].push_back(new TextField(900, 500, "BPM: ", &font));
 
 			// recording screen
-			comprehensiveButtons[recording].push_back(Button(500, 500, "End Recording", &font));
+			comprehensiveButtons[recording].push_back(new Button(500, 500, "End Recording", &font));
 
 			// analysis screen
-			comprehensiveButtons[analysis].push_back(Button(1000, 800, "Restart", &font));
-			comprehensiveButtons[analysis].push_back(Button(800, 800, "Save Recording", &font));
+			comprehensiveButtons[analysis].push_back(new Button(1000, 800, "Restart", &font));
+			comprehensiveButtons[analysis].push_back(new Button(800, 800, "Save Recording", &font));
 
 			// saveFile screen
-			comprehensiveButtons[saveFile].push_back(Button(800, 800, "Save File", &font));
+			comprehensiveButtons[saveFile].push_back(new Button(800, 800, "Save File", &font));
 		}
 
 		//buttons.push_back(Button(1000, 800, "Restart", &font));
 		//buttons.push_back(Button(1200, 800, "Exit", &font));
+
+		// allows for entering text into text fields (represented by buttons)
+		// textInputVariable is the target variable
+		// textInputString is the input to that variable
+		TextInputVariable textInputVariable = noInput;
+		string textInputString = "";
 
 		// error text that displays when the user does something invalid (e.g. enters a string into bpm field)
 		sf::Text errorText;
@@ -170,10 +287,7 @@ public:
 		errorText.setString("");
 		errorText.setFillColor(sf::Color::Red);
 		errorText.setCharacterSize(25);
-
-		// entering text into text fields (represented by buttons)
-		TextInputVariable currentTextInputVariable = noInput;
-		string currentTextInput = "";
+		errorText.setPosition(sf::Vector2f(100, 100));
 
 		// file
 		int chosenFileIndex = -1;
@@ -183,6 +297,7 @@ public:
 		sf::SoundBufferRecorder recorder;
 		bool recordingStarted = false;
 		bool endRecording = false;
+		bool printedAvailable = false; // debugging
 
 		// analysis
 		bool preparedAnalysis = false;
@@ -213,37 +328,119 @@ public:
 				// for start screen
 				if (event.type == sf::Event::TextEntered)
 				{
-					// if enter key, then set the variable to textInput depending on the value of currentTextInputVariable
-					if (false)
-					{
-						// errorText passed by reference
-						setTextInputVariable(currentTextInputVariable, currentTextInput, errorText);
-						currentTextInput = "";
-					}
+					cout << "unicode: " << event.text.unicode << endl;
 
-					// if regular character, then append it to textInput
-					else if (event.text.unicode < 128)
+					// if enter key, then process any text that was entered into a text field
+					if (event.text.unicode == 13)
 					{
-						currentTextInput += static_cast<char>(event.text.unicode);
+						if (textInputVariable != noInput)
+						{
+							cout << "bpm is " << bpm << endl;
+							cout << "text input variable is " << textInputVariable << endl;
+
+							string errorTextString = processTextInput(currentScreen, textInputVariable, textInputString, true);
+							if (errorTextString.length() == 0)
+							{
+								textInputVariable = noInput;
+								textInputString = "";
+								cout << "audio info bpm: " << audioInfo.getBpm() << endl;
+							}
+							else
+							{
+								errorText.setString(errorTextString);
+							}
+						}
 					}
 
 					// if backspace key, then remove one character from textInput
-					else if (false)
+					else if (event.text.unicode == 8)
 					{
-						currentTextInput = currentTextInput.substr(0, currentTextInput.length() - 1);
+						// if the text is being entered for fileName, then automatically add .ogg at the end
+						if (textInputVariable == fileName && textInputString.length() > 4)
+						{
+							textInputString = textInputString.substr(0, textInputString.length() - 5) + ".ogg";
+						}
+						else if (textInputString.length() > 0)
+						{
+							textInputString = textInputString.substr(0, textInputString.length() - 1);
+						}
+
+						processTextInput(currentScreen, textInputVariable, textInputString, false);
+					}
+
+					// if escape key, then stop entering text
+					else if (event.text.unicode == 27)
+					{
+						textInputString = "";
+						processTextInput(currentScreen, textInputVariable, textInputString, false);
+
+						textInputVariable = noInput;
+
+						// deselect all buttons on the screen
+						for (int i = 0; i < comprehensiveButtons[currentScreen].size(); i++)
+						{
+							comprehensiveButtons[currentScreen][i]->deselect();
+						}
+					}
+
+					// if regular character that is not backspace or escape, then append it to textInput
+					else if (event.text.unicode < 128)
+					{
+						// if the text is being entered for fileName, then automatically add .ogg at the end
+						if (textInputVariable == fileName)
+						{
+							textInputString = textInputString.substr(0, textInputString.length() - 4) + static_cast<char>(event.text.unicode) + ".ogg";
+						}
+						else
+						{
+							textInputString += static_cast<char>(event.text.unicode);
+							cout << "text input string: " << textInputString << endl;
+						}
+
+						processTextInput(currentScreen, textInputVariable, textInputString, false);
+
 					}
 				}
 
-				if (event.type == sf::Event::MouseButtonPressed)
+				if (event.type == sf::Event::MouseButtonPressed && sf::Mouse::isButtonPressed(sf::Mouse::Left))
 				{
+					// if mouse is clicked, then process any text that was entered into a text field
+					if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+					{
+						if (textInputVariable != noInput)
+						{
+							cout << "bpm is " << bpm << endl;
+							cout << "text input variable is " << textInputVariable << endl;
+
+							string errorTextString = processTextInput(currentScreen, textInputVariable, textInputString, true);
+							if (errorTextString.length() == 0)
+							{
+								textInputVariable = noInput;
+								textInputString = "";
+
+								// deselect all buttons on the screen
+								for (int i = 0; i < comprehensiveButtons[currentScreen].size(); i++)
+								{
+									comprehensiveButtons[currentScreen][i]->deselect();
+								}
+							}
+							else
+							{
+								errorText.setString(errorTextString);
+							}
+						}
+					}
+
 					// find out which button was clicked on (if any)
 					sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
 					int buttonIndex = processMouseClick(mousePosition, currentScreen, errorText);
 
-					setTextInputVariable(currentTextInputVariable, currentTextInput, errorText);
-					currentTextInput = "";
-
+					// no button clicked
 					if (buttonIndex == -1) { continue; }
+
+					// dont process the click of a button if there is currently an error
+					// unless the button being clicked is the exit button
+					if (errorText.getString().getSize() > 0 && buttonIndex != 2) { continue; }
 
 					// carry out button behavior
 
@@ -283,6 +480,20 @@ public:
 					case info:
 					{
 						if (buttonIndex == 3) { currentScreen = recording; }
+
+						if (buttonIndex == 4)
+						{
+							comprehensiveButtons[info][4]->select();
+							textInputVariable = TextInputVariable::inputDevice;
+							textInputString = "";
+						}
+
+						if (buttonIndex == 5)
+						{
+							comprehensiveButtons[info][5]->select();
+							textInputVariable = bpm;
+							textInputString = "";
+						}
 
 						break;
 					}
@@ -406,9 +617,14 @@ public:
 			{
 			case home:
 			{
-				vector<Button> currentScreenButtons = comprehensiveButtons[currentScreen];
+				vector<Button*> currentScreenButtons = comprehensiveButtons[currentScreen];
+				//for (int i = 0; i < comprehensiveButtons[currentScreen].size(); i++)
+				//{
+				//	comprehensiveButtons[currentScreen][i]->whatAmI();
+				//	currentScreenButtons[i]->whatAmI();
+				//}
 
-				if (currentTextInput.find("q") != string::npos)
+				if (textInputString.find("q") != string::npos)
 				{
 					currentScreen = recording;
 				}
@@ -427,24 +643,30 @@ public:
 
 				window.clear(sf::Color::White);
 
+				window.draw(errorText);
+
 				window.draw(text);
 				window.draw(text2);
 
 				// draw the buttons
 				for (int i = 0; i < currentScreenButtons.size(); i++)
 				{
-					window.draw(currentScreenButtons[i].getRectangle());
 
-					sf::Text text(currentScreenButtons[i].getText());
-					window.draw(currentScreenButtons[i].getText());
+					//cout << "current screen buttons size " << currentScreenButtons.size() << endl;
+					window.draw(currentScreenButtons[i]->getRectangle());
+
+					sf::Text text(currentScreenButtons[i]->getText());
+					window.draw(currentScreenButtons[i]->getText());
 				}
+
+				
 
 				window.draw(errorText);
 
 				window.display();
 				break;
 			}
-
+			/*
 			case settings:
 			{
 				vector<Button> currentScreenButtons = comprehensiveButtons[currentScreen];
@@ -458,6 +680,8 @@ public:
 				//--------------------DRAW TO WINDOW--------------------------
 
 				window.clear(sf::Color::White);
+
+				window.draw(errorText);
 
 				window.draw(text);
 
@@ -525,10 +749,14 @@ public:
 
 				break;
 			}
-
+			*/
 			case info:
 			{
-				vector<Button> currentScreenButtons = comprehensiveButtons[currentScreen];
+				vector<Button*> currentScreenButtons;
+				for (int i = 0; i < comprehensiveButtons[currentScreen].size(); i++)
+				{
+					currentScreenButtons.push_back(comprehensiveButtons[currentScreen][i]);
+				}
 
 				// set bpm, input device
 				audioInfo.setBpm(120);
@@ -536,9 +764,24 @@ public:
 
 				std::vector<std::string> availableDevices = sf::SoundRecorder::getAvailableDevices();
 
-				for (int i = 0; i < availableDevices.size(); i++)
+				if (!printedAvailable)
 				{
-					cout << "available devices: " << availableDevices[i] << endl;
+					for (int i = 0; i < availableDevices.size(); i++)
+					{
+						cout << "available devices: " << availableDevices[i] << endl;
+					}
+
+					for (int i = 0; i < currentScreenButtons.size(); i++)
+					{
+						currentScreenButtons[i]->whatAmI();
+					}
+
+					for (int i = 0; i < comprehensiveButtons[currentScreen].size(); i++)
+					{
+						comprehensiveButtons[currentScreen][i]->whatAmI();
+					}
+
+					printedAvailable = true;
 				}
 
 				// choose a device
@@ -560,15 +803,26 @@ public:
 
 				window.clear(sf::Color::White);
 
+				window.draw(errorText);
+
 				window.draw(text);
 
 				// draw the buttons
 				for (int i = 0; i < currentScreenButtons.size(); i++)
 				{
-					window.draw(currentScreenButtons[i].getRectangle());
+					window.draw(currentScreenButtons[i]->getRectangle());
 
-					sf::Text text(currentScreenButtons[i].getText());
-					window.draw(currentScreenButtons[i].getText());
+					sf::Text text(currentScreenButtons[i]->getText());
+					window.draw(currentScreenButtons[i]->getText());
+
+					sf::Text inputText(currentScreenButtons[i]->getInputText());
+
+					if (inputText.getString().getSize() > 0)
+					{
+						cout << "input text string: " << (string)inputText.getString() << endl;
+						//currentScreenButtons[i]->setInputString(inputText.getString());
+						window.draw(inputText);
+					}
 				}
 
 				window.draw(errorText);
@@ -577,6 +831,7 @@ public:
 
 				break;
 			}
+			/*
 
 			case recording:
 			{
@@ -595,6 +850,8 @@ public:
 				//--------------------DRAW TO WINDOW--------------------------
 
 				window.clear(sf::Color::White);
+
+				window.draw(errorText);
 
 				window.draw(text);
 				window.draw(text2);
@@ -659,6 +916,10 @@ public:
 
 					stream.load(audioInfo.getBuffer());
 
+					// reset variables from previous analysis session
+					noteLocationCount = 0;
+					noteLocations_seconds.clear();
+
 					// skip all of the audio before the first note in the audio stream
 					sf::Time secondsBeforeFirstNote = sf::seconds(audioInfo.getSamplesBeforeFirstNote() / float(audioInfo.getSampleRate() * audioInfo.getChannelCount()));
 					stream.setPlayingOffset(secondsBeforeFirstNote);
@@ -693,7 +954,7 @@ public:
 					startedClock = true;
 				}
 
-				// if it is time to draw the next rectangle (i.e. the elapsed time >= the next note location), 
+				// if it is time to draw the next rectangle (i.e. the elapsed time >= the next note location),
 				// then draw the next rectangle
 				if (noteLocationCount < noteLocations_seconds.size() &&
 					(clock.getElapsedTime() + storedTime).asSeconds() >= noteLocations_seconds[noteLocationCount])
@@ -725,13 +986,15 @@ public:
 
 				window.clear(sf::Color::White);
 
+				window.draw(errorText);
+
 				window.draw(yAxis);
 				window.draw(xAxis);
 
 				for (int i = 0; i < noteLocationCount; i++)
 				{
 					// edge case: no notes were found
-					if (rectangles.size() > 0) { continue; }
+					if (rectangles.size() <= 0) { continue; }
 
 					window.draw(rectangles[i]);
 				}
@@ -767,6 +1030,8 @@ public:
 
 				window.clear(sf::Color::White);
 
+				window.draw(errorText);
+
 				window.draw(text);
 
 				// draw the buttons
@@ -784,6 +1049,7 @@ public:
 
 				break;
 			}
+			*/
 			}
 
 		}
@@ -795,17 +1061,22 @@ public:
 
 private:
 
+	// gets the note locations
 	AudioInfo audioInfo;
+
+	// gets the accuracy of each note
 	RhythmAccuracy rhythmAccuracy;
+
+	// allows for saving and opening audio files
 	FileManager fileManager;
 
 	sf::SoundBuffer buffer;
 
 	enum Screen { home, settings, file, info, recording, analysis, saveFile, ScreenEnd };
+	enum TextInputVariable { noInput, inputDevice, bpm, fileName, TextInputVariableEnd };
 
-	enum TextInputVariable { noInput, fileName, bpm, TextInputVariableEnd };
-
-	map<Screen, vector<Button>> comprehensiveButtons;
+	// stores all clickable buttons for all screens
+	map<Screen, vector<Button*>> comprehensiveButtons;
 
 	string processKeyPress()
 	{
@@ -866,7 +1137,7 @@ private:
 
 		for (int i = 0; i < comprehensiveButtons[currentScreen].size(); i++)
 		{
-			sf::RectangleShape rectangle = comprehensiveButtons[currentScreen][i].getRectangle();
+			sf::RectangleShape rectangle = comprehensiveButtons[currentScreen][i]->getRectangle();
 
 			bool clickedButton =
 				(
@@ -894,28 +1165,78 @@ private:
 
 	}
 
-	// set the value to the given text input variable
-	void setTextInputVariable(TextInputVariable currentTextInputVariable, string currentTextInput, sf::Text &errorText)
+	// check if the text input should return any error text
+	// if no error text, then set audioInfo variable
+	string processTextInput(Screen currentScreen, TextInputVariable targetVariable, string textInput, bool validateInput)
 	{
-		// if mouse click, then set the textInput to the variable
-		// (unless mouse clicked on same button?)
-		switch (currentTextInputVariable)
-		{
-		case noInput: break;
+		cout << "process text input: " << endl;
+		cout << "target variable: " << (targetVariable == bpm) << endl;
+		cout << "text input: " << textInput << endl;
 
-		case fileName:
+		// store the current text input into its text field
+		switch (currentScreen)
 		{
-			audioInfo.setFileName(currentTextInput);
+		case home: break;
+		case settings: break;
+		case file: break;
+		case info:
+		{
+			switch (targetVariable)
+			{
+			case bpm:
+			{
+				comprehensiveButtons[info][5]->setInputString(textInput);
+				cout << "bpm text field string: " << (string)comprehensiveButtons[info][5]->getInputText().getString() << endl;
+				break;
+			}
+
+			default: break;
+			}
 		}
-
-		case bpm:
-		{
-			// if textInput is not an integer, then refuse to set bpm?
-			audioInfo.setBpm(stoi(currentTextInput));
-		}
-
+		case recording: break;
+		case analysis: break;
+		case saveFile: break;
 		default: break;
 		}
+
+		// validate the input if enter key pressed or mouse clicked
+		if (validateInput)
+		{
+			bool isNumber = true;
+			for (int i = 0; i < textInput.length(); i++)
+			{
+				if (!isdigit(textInput[i])) { isNumber = false; }
+			}
+
+			switch (targetVariable)
+			{
+			case bpm:
+			{
+				if (!isNumber) { return "BPM must be an integer!"; }
+
+				int bpmInput = stoi(textInput);
+				if (bpmInput <= 0) { return "Invalid BPM value!"; }
+
+				audioInfo.setBpm(bpmInput);
+				return "";
+			}
+			case fileName:
+			{
+				if (textInput.length() > getMaxFileNameLength()) { return "File Name Too Long!"; }
+
+				audioInfo.setFileName(textInput);
+				return "";
+			}
+			default:
+			{
+				cout << "invalid target variable" << endl;
+				string s; cin >> s;
+				exit(1);
+			}
+			}
+		}
+
+		return "";
 	}
 
 	vector<sf::RectangleShape> getRectanglesFromData()
@@ -923,9 +1244,7 @@ private:
 		vector<sf::RectangleShape> rectangles;
 		vector<double> beatDifferences = rhythmAccuracy.getBeatDifferences();
 
-		printf("calling max rectangle height\n");
 		double maxRectangleHeight = getMaxRectangleHeight();
-		printf("max rectangle height: %d\n", maxRectangleHeight);
 
 		double maxBeatDifference = 0.1;
 
@@ -971,6 +1290,8 @@ private:
 
 			rectangle.setOutlineThickness(-1.f); // make the outline go inside the rectangle
 			rectangles.push_back(rectangle);
+
+
 		}
 
 		return rectangles;

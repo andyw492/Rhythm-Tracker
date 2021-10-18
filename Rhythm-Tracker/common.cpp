@@ -19,9 +19,10 @@ double getNoteSearchRange()
 	return 1;
 }
 
-int getMaxRectangleHeight()
+double getMaxRectangleHeight()
 {
-	return 125;
+	cout << "in get max rectangle height" << endl;
+	return 125.0;
 	//printf("in getmaxrectangleheight\n");
 	//return findIntFromSettings("Max Rectangle Height");
 }
@@ -39,6 +40,11 @@ double getGreenThreshold()
 double getYellowThreshold()
 {
 	return 1;
+}
+
+int getMaxFileNameLength()
+{
+	return 32;
 }
 
 int findIntFromSettings(string searchSetting)

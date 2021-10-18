@@ -89,7 +89,7 @@ public:
 	void displayWindow()
 	{
 		WindowMaker windowMaker;
-		windowMaker.createWindow();
+		windowMaker.display();
 	}
 
 private:

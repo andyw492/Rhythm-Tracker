@@ -14,13 +14,15 @@ double findDoubleFromSettings(string searchSetting);
 
 double getNoteSearchRange();
 
-int getMaxRectangleHeight();
+double getMaxRectangleHeight();
 
 double getMaxBeatDifference();
 
 double getGreenThreshold();
 
 double getYellowThreshold();
+
+int getMaxFileNameLength();
 
 int findIntFromSettings(string searchSetting);
 

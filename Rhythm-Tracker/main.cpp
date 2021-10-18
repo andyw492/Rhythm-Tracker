@@ -23,7 +23,7 @@ int main()
 	rhythmTracker.displayWindow();
 
 	// for some reason, a change needs to be made somewhere in main.cpp for each new compile
-	string compileChange = "777777777777777777777777";
+	string compileChange = "777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777";
 
 	return 0;
 }
