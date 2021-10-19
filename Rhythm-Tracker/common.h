@@ -12,6 +12,8 @@ int findIntFromSettings(string searchSetting);
 
 double findDoubleFromSettings(string searchSetting);
 
+int getMaxRecordingSeconds();
+
 double getNoteSearchRange();
 
 double getMaxRectangleHeight();

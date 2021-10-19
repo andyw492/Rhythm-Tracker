@@ -29,6 +29,7 @@ public:
 
 	void setChannelCount(int channelCount)
 	{
+		cout << "set channel count to " << channelCount << endl;;
 		this->channelCount = channelCount;
 	}
 

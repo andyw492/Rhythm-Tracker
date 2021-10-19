@@ -14,6 +14,11 @@ using namespace std;
 int findIntFromSettings(string searchSetting);
 double findDoubleFromSettings(string searchSetting);
 
+int getMaxRecordingSeconds()
+{
+	return 60;
+}
+
 double getNoteSearchRange()
 {
 	return 1;
@@ -21,7 +26,7 @@ double getNoteSearchRange()
 
 double getMaxRectangleHeight()
 {
-	cout << "in get max rectangle height" << endl;
+
 	return 125.0;
 	//printf("in getmaxrectangleheight\n");
 	//return findIntFromSettings("Max Rectangle Height");
